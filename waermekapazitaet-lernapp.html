@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Spezifische Wärmekapazität – Lernapp</title>
+<style>
+:root{
+  --navy:#14213d;--navy2:#27407a;--orange:#ff7a1a;--red:#e8452c;--blue:#1e88e5;--teal:#14b8a6;--green:#2e9e5b;
+  --ink:#1d2a44;--muted:#5b6b8a;--card:#ffffff;--line:#dfe6f3;--r:18px;
+  --shadow:0 8px 28px rgba(20,33,61,.12);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:"Segoe UI",system-ui,-apple-system,Roboto,sans-serif;color:var(--ink);line-height:1.55;
+  background:linear-gradient(135deg,#eaf4ff 0%,#fff3e3 100%) fixed;min-height:100vh}
+h1,h2,h3,h4{margin:0 0 .4em;line-height:1.25}
+small{color:var(--muted)}
+b{font-weight:650}
+
+/* ---------- Kopfzeile ---------- */
+.top{position:sticky;top:0;z-index:50;background:linear-gradient(90deg,var(--navy),var(--navy2));color:#fff;
+  box-shadow:0 4px 18px rgba(0,0,0,.25);display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;padding:10px 20px}
+.brand{display:flex;align-items:center;gap:12px}
+.brand .logo{font-size:30px;animation:pulse 2.4s ease-in-out infinite}
+.brand h1{font-size:18px;margin:0}
+.brand p{margin:0;font-size:12px;opacity:.75}
+nav{display:flex;gap:8px;flex:1;flex-wrap:wrap;justify-content:center}
+nav button{position:relative;border:0;border-radius:14px;padding:8px 14px 12px;background:rgba(255,255,255,.1);color:#fff;
+  cursor:pointer;font:inherit;font-size:14px;transition:.25s;min-width:150px;text-align:left;overflow:hidden}
+nav button:hover{background:rgba(255,255,255,.2);transform:translateY(-2px)}
+nav button.active{background:#fff;color:var(--navy);box-shadow:0 4px 14px rgba(0,0,0,.3)}
+nav button .n{font-weight:700;margin-right:4px}
+nav button .cnt{float:right;font-size:12px;opacity:.8}
+nav button .bar{position:absolute;left:0;bottom:0;height:5px;width:0;background:linear-gradient(90deg,var(--orange),#ffd23f);transition:width .6s}
+.top .right{display:flex;align-items:center;gap:12px}
+.overall{min-width:120px;font-size:12px}
+.overall .track{height:8px;background:rgba(255,255,255,.25);border-radius:6px;overflow:hidden;margin-top:3px}
+.overall .fill{height:100%;width:0;background:linear-gradient(90deg,#6ee7a8,#ffd23f);transition:width .6s}
+.btn{border:0;border-radius:12px;padding:9px 16px;font:inherit;font-weight:600;cursor:pointer;color:#fff;
+  background:linear-gradient(135deg,var(--orange),var(--red));box-shadow:0 4px 12px rgba(232,69,44,.3);transition:.2s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 7px 16px rgba(232,69,44,.35)}
+.btn:active{transform:translateY(0)}
+.btn.ghost{background:#eef3fc;color:var(--navy2);box-shadow:none;border:1px solid var(--line)}
+.btn.ghost:hover{background:#e1eafa}
+.btn.blue{background:linear-gradient(135deg,#2196f3,#1565c0);box-shadow:0 4px 12px rgba(21,101,192,.3)}
+.btn.green{background:linear-gradient(135deg,#38c172,#1f8a4c);box-shadow:0 4px 12px rgba(31,138,76,.3)}
+.btn.small{padding:6px 12px;font-size:13px}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+
+/* ---------- Layout ---------- */
+main{max-width:1060px;margin:0 auto;padding:22px 16px 80px}
+.part{display:none}
+.part.active{display:block}
+.part.active>.card,.part.active>.group{animation:fadeUp .6s both}
+.part.active>*:nth-child(2){animation-delay:.05s}.part.active>*:nth-child(3){animation-delay:.1s}.part.active>*:nth-child(4){animation-delay:.15s}
+.card{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);padding:22px 24px;margin-bottom:22px;border:1px solid rgba(255,255,255,.7)}
+.card>h2{display:flex;align-items:center;gap:10px;font-size:22px}
+.card>h2 .step{background:linear-gradient(135deg,var(--orange),var(--red));color:#fff;border-radius:50%;width:34px;height:34px;display:inline-flex;align-items:center;justify-content:center;font-size:16px;flex:none}
+.hero{background:linear-gradient(135deg,#14213d,#27407a 60%,#5b2a86);color:#fff;position:relative;overflow:hidden}
+.hero h2{font-size:28px;color:#fff}
+.hero p{max-width:640px}
+.hero .floaters span{position:absolute;font-size:34px;opacity:.25;animation:float 6s ease-in-out infinite}
+.plan{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-top:14px;position:relative}
+.plan div{background:rgba(255,255,255,.12);border-radius:14px;padding:10px 14px;backdrop-filter:blur(4px)}
+.plan b{display:block;font-size:15px}
+.plan span{font-size:13px;opacity:.85}
+.task-box{background:#fff8ec;border-left:5px solid var(--orange);border-radius:10px;padding:10px 16px;margin:12px 0}
+.task-box b.t{color:#c25a00}
+.task-box ol,.task-box ul{margin:.3em 0 0 1.1em;padding:0}
+.merke{background:linear-gradient(135deg,#e8f6ff,#e9fff4);border:2px dashed var(--blue);border-radius:14px;padding:12px 18px;margin:14px 0;position:relative}
+.merke::before{content:"📌 Merke";display:block;font-weight:700;color:var(--blue);margin-bottom:2px}
+.formula{font-family:"Cambria Math","Cambria",Georgia,serif;font-size:1.1em}
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 .25em;font-size:.95em}
+.frac>span:first-child{border-bottom:2px solid currentColor;padding:0 .35em .05em}
+.frac>span:last-child{padding:.05em .35em 0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:center}
+@media(max-width:820px){.grid2{grid-template-columns:1fr}nav button{min-width:120px}}
+svg{max-width:100%;height:auto;display:block}
+.svgwrap{background:linear-gradient(180deg,#f4f9ff,#fdf6ec);border-radius:14px;border:1px solid var(--line);overflow:hidden}
+.svg-title{font:700 17px "Segoe UI",sans-serif;fill:#1d2a44}
+.svg-sub{font:13px "Segoe UI",sans-serif;fill:#5b6b8a}
+.svg-val{font:700 18px "Segoe UI",sans-serif;fill:#c62828}
+.svg-delta{font:600 14px "Segoe UI",sans-serif;fill:#1565c0}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.chip{border:2px solid var(--line);background:#fff;border-radius:999px;padding:5px 12px;cursor:pointer;font:inherit;font-size:14px;transition:.2s}
+.chip:hover{transform:translateY(-2px);border-color:var(--blue)}
+.chip.on{background:var(--blue);border-color:var(--blue);color:#fff;box-shadow:0 4px 10px rgba(30,136,229,.35)}
+.meter{height:16px;background:#e8eef9;border-radius:10px;overflow:hidden;position:relative}
+.meter>i{display:block;height:100%;width:0;background:linear-gradient(90deg,#ffd23f,var(--orange),var(--red));border-radius:10px}
+.row{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:10px 0}
+.row label{font-weight:600;font-size:14px}
+input[type=range]{accent-color:var(--orange);width:190px;vertical-align:middle}
+select,input[type=text]{font:inherit;border:2px solid var(--line);border-radius:10px;padding:7px 10px;background:#fff;color:var(--ink)}
+select:focus,input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(30,136,229,.2)}
+.big{font-size:26px;font-weight:700}
+.readout{background:#14213d;color:#fff;border-radius:14px;padding:12px 18px;font-size:17px;margin-top:10px}
+.readout .formula{font-size:1.15em}
+.readout b{color:#ffd23f}
+.pill{display:inline-block;padding:2px 10px;border-radius:999px;background:#eef3fc;font-size:13px;color:var(--navy2);margin:2px 3px 2px 0}
+.pill.up{background:#ffe9d6;color:#b24b00}
+
+/* ---------- Balken ---------- */
+.bars{display:flex;flex-direction:column;gap:7px;margin:12px 0}
+.barrow{display:grid;grid-template-columns:150px 1fr 60px;gap:10px;align-items:center;cursor:pointer;padding:3px 6px;border-radius:10px;transition:.2s}
+.barrow:hover,.barrow.sel{background:#eef5ff}
+.barrow .nm{font-weight:600;font-size:15px}
+.barrow .tr{background:#edf1f9;border-radius:8px;height:22px;overflow:hidden}
+.barrow .tr i{display:block;height:100%;width:0;border-radius:8px;transition:width 1.1s cubic-bezier(.2,.8,.2,1)}
+.barrow .vl{font-weight:700;text-align:right}
+.infobox{background:#f2f8ff;border-radius:12px;padding:10px 16px;min-height:48px;border:1px solid #cfe3fb}
+
+/* ---------- Aufgabenkarten ---------- */
+.group{margin-bottom:26px}
+.group>h3{font-size:19px;display:flex;align-items:center;gap:10px;color:var(--navy);margin:6px 4px 12px}
+.group>h3 span.ic{font-size:26px}
+.group>p.sub{margin:-6px 4px 12px;color:var(--muted)}
+.q{background:#fff;border-radius:16px;border:2px solid var(--line);padding:16px 18px;margin-bottom:14px;transition:.3s;box-shadow:0 3px 12px rgba(20,33,61,.06);position:relative;overflow:hidden}
+.q:hover{box-shadow:0 8px 22px rgba(20,33,61,.12)}
+.q.done{border-color:#7fd6a3;background:linear-gradient(135deg,#fff,#f0fff6)}
+.q-head{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.q-head h4{margin:0;font-size:17px;flex:1}
+.q-num{background:var(--navy2);color:#fff;border-radius:10px;padding:2px 10px;font-weight:700;font-size:14px}
+.tag{font-size:12px;border-radius:999px;padding:2px 10px;background:#e6f0ff;color:#1c58b0;font-weight:600}
+.tag.hard{background:#f3e5ff;color:#6b2aa6}
+.tick{width:28px;height:28px;border-radius:50%;background:#d8d8d8;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:15px;transition:.4s}
+.q.done .tick{background:var(--green);animation:pop .5s}
+.q-body{display:flex;gap:14px;align-items:flex-start}
+.q-icon{font-size:42px;line-height:1;flex:none;animation:float 4s ease-in-out infinite}
+.q-text{flex:1}
+.q-answer{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:12px}
+.q-answer input[type=text]{width:130px;font-size:17px;font-weight:600;text-align:right}
+.q-answer .unit{font-weight:700;color:var(--navy2)}
+.q-answer label{font-weight:600;display:flex;gap:6px;align-items:center}
+.fb{margin-top:10px;font-weight:600;display:none;padding:9px 14px;border-radius:10px}
+.fb.show{display:block;animation:fadeUp .35s}
+.fb.ok{background:#dff7e8;color:#176b3a}
+.fb.bad{background:#ffe6e2;color:#a8281b}
+.fb.warn{background:#fff3cf;color:#8a5a00}
+.tipbox,.solbox{display:none;margin-top:10px;border-radius:12px;padding:10px 16px}
+.tipbox{background:#fff8d6;border:1px dashed #e3b900}
+.solbox{background:#f4f7ff;border:1px solid #c9d6f2}
+.tipbox.show,.solbox.show{display:block;animation:fadeUp .35s}
+.sol-step{display:flex;gap:12px;align-items:flex-start;padding:5px 0;opacity:0;animation:fadeUp .45s forwards;animation-delay:calc(var(--i)*.28s)}
+.sol-step .sl{flex:none;min-width:92px;background:var(--navy2);color:#fff;font-size:12px;font-weight:700;border-radius:8px;padding:3px 8px;text-align:center;margin-top:2px}
+.sol-step .sl.res{background:var(--green)}
+.sol-step>div{flex:1}
+.q.shake{animation:shake .45s}
+.opts{display:grid;gap:8px;margin-top:10px}
+.opt{border:2px solid var(--line);background:#fff;border-radius:12px;padding:10px 14px;text-align:left;font:inherit;cursor:pointer;transition:.2s}
+.opt:hover:not(:disabled){border-color:var(--blue);background:#f2f8ff;transform:translateX(4px)}
+.opt.right{border-color:var(--green);background:#e6f9ee}
+.opt.wrong{border-color:var(--red);background:#ffeceb;animation:shake .4s}
+.opt:disabled{cursor:default}
+table.grid{border-collapse:separate;border-spacing:0 6px;margin-top:8px}
+table.grid th{text-align:left;padding:4px 14px;color:var(--muted);font-size:14px}
+table.grid td{padding:4px 14px;background:#f5f8fd}
+table.grid td:first-child{border-radius:10px 0 0 10px;font-weight:600}
+table.grid td:last-child{border-radius:0 10px 10px 0}
+table.grid input{width:90px;text-align:right;font-weight:600}
+table.grid input.ok{border-color:var(--green);background:#e6f9ee}
+table.grid input.bad{border-color:var(--red);background:#ffeceb}
+.tfrow{display:flex;gap:10px;align-items:center;padding:7px 0;border-bottom:1px dashed var(--line)}
+.tfrow .st{flex:1}
+.tfrow .tfb{border:2px solid var(--line);background:#fff;border-radius:10px;padding:4px 12px;cursor:pointer;font:inherit;font-weight:600}
+.tfrow .tfb.sel{background:var(--navy2);color:#fff;border-color:var(--navy2)}
+.tfrow.ok{background:#eafaf0}.tfrow.bad{background:#fff0ee}
+.orderpool,.orderline{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0;min-height:46px}
+.orderline{background:#f5f8fd;border-radius:12px;padding:6px;border:2px dashed var(--line)}
+.orderline .chip{background:var(--navy2);color:#fff;border-color:var(--navy2)}
+.chip:disabled{opacity:.35;cursor:default;transform:none}
+.nextrow{display:flex;justify-content:space-between;margin-top:10px}
+
+/* ---------- Symbole & Umsteller ---------- */
+.bigformula{font-family:"Cambria Math","Cambria",Georgia,serif;font-size:44px;text-align:center;padding:14px 0;color:var(--navy)}
+.bigformula .sym{font:inherit;border:3px solid transparent;background:#fff4e6;border-radius:14px;padding:0 14px;cursor:pointer;color:var(--red);transition:.25s;margin:0 2px}
+.bigformula .sym:hover{transform:scale(1.12) rotate(-2deg);background:#ffe4c7}
+.bigformula .sym.on{border-color:var(--orange);background:#ffe4c7}
+.syminfo{min-height:78px;background:#fff8ec;border-radius:14px;padding:12px 18px;border-left:5px solid var(--orange)}
+.cancel{text-decoration:line-through;text-decoration-color:var(--red);text-decoration-thickness:2px}
+.unitcheck{font-size:20px;text-align:center;background:#f2f8ff;border-radius:12px;padding:10px;margin-top:12px}
+.rearr{background:#14213d;color:#fff;border-radius:14px;padding:14px 20px;min-height:140px}
+.rearr .ln{font-size:22px;padding:4px 0;opacity:0;animation:fadeUp .5s forwards;animation-delay:calc(var(--i)*.4s);font-family:"Cambria Math","Cambria",Georgia,serif}
+.rearr .ln.cm{font-size:15px;color:#9fc3ff;font-family:inherit}
+.rearr .ln b{color:#ffd23f}
+.recipe{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:12px 0}
+.recipe div{background:#fff;border:2px solid var(--line);border-radius:14px;padding:12px 14px;position:relative;transition:.25s}
+.recipe div:hover{transform:translateY(-4px);border-color:var(--orange)}
+.recipe div b.n{position:absolute;top:-12px;left:12px;background:var(--orange);color:#fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center}
+.recipe div p{margin:6px 0 0;font-size:14px}
+
+/* ---------- Schublade ---------- */
+.drawer{position:fixed;top:0;right:0;height:100%;width:330px;max-width:90vw;background:#fff;z-index:100;box-shadow:-8px 0 30px rgba(0,0,0,.25);
+  transform:translateX(105%);transition:transform .4s cubic-bezier(.2,.8,.2,1);padding:18px 20px;overflow:auto}
+.drawer.open{transform:none}
+.drawer h3{display:flex;justify-content:space-between;align-items:center}
+.drawer table{width:100%;border-collapse:collapse}
+.drawer td,.drawer th{padding:7px 8px;border-bottom:1px solid var(--line);text-align:left}
+.drawer td:last-child,.drawer th:last-child{text-align:right;font-weight:700}
+.drawer .note{font-size:12px;color:var(--muted);margin-top:10px}
+
+/* ---------- Abschluss ---------- */
+.sumrow{display:grid;grid-template-columns:200px 1fr 70px;gap:12px;align-items:center;margin:10px 0}
+.sumrow .tr{height:16px;background:#e8eef9;border-radius:10px;overflow:hidden}
+.sumrow .tr i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--teal),var(--green));transition:width 1s}
+.trophy{text-align:center;padding:10px}
+.trophy .em{font-size:84px;display:inline-block;animation:bounce 2s infinite}
+.checklist label{display:block;padding:7px 4px;cursor:pointer}
+.checklist input{width:18px;height:18px;accent-color:var(--green);margin-right:8px;vertical-align:middle}
+.cheatsheet{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.cheatsheet div{background:#f5f8fd;border-radius:14px;padding:12px 16px}
+
+/* ---------- Effekte ---------- */
+.flame{transform-box:fill-box;transform-origin:50% 100%;animation:flicker .45s ease-in-out infinite alternate}
+.flame.f2{animation-duration:.33s}.flame.f3{animation-duration:.52s}
+.sun-rays{transform-origin:0 0;animation:spin 24s linear infinite}
+.wave{animation:wave 6s ease-in-out infinite alternate}
+.wave.w2{animation-duration:8s;animation-direction:alternate-reverse}
+.cloud{animation:drift 20s ease-in-out infinite alternate}
+.spark{animation:rise 1.6s linear infinite;transform-box:fill-box}
+.burst{position:fixed;pointer-events:none;z-index:200;font-size:20px;animation:burst .95s ease-out forwards}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+@keyframes pop{0%{transform:scale(.2)}70%{transform:scale(1.4)}100%{transform:scale(1)}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.18)}}
+@keyframes flicker{from{transform:scale(.9,.82) skewX(-3deg)}to{transform:scale(1.08,1.12) skewX(3deg)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes wave{from{transform:translateX(-40px)}to{transform:translateX(40px)}}
+@keyframes drift{from{transform:translateX(-30px)}to{transform:translateX(40px)}}
+@keyframes rise{0%{transform:translateY(0);opacity:0}15%{opacity:1}100%{transform:translateY(-110px);opacity:0}}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-16px)}}
+@keyframes burst{0%{transform:translate(0,0) scale(.4);opacity:1}100%{transform:translate(var(--dx),var(--dy)) scale(1.3) rotate(var(--rot));opacity:0}}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01s!important;animation-iteration-count:1!important;transition-duration:.01s!important}}
+footer{text-align:center;color:var(--muted);font-size:13px;padding-bottom:30px}
+
+/* ---------- Tablet / Touch ---------- */
+html{-webkit-text-size-adjust:100%}
+button,.barrow,.sym{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+@media(pointer:coarse),(max-width:900px){
+  .top{position:static;padding:8px 14px}
+  .brand p{display:none}
+  nav{order:3;flex:1 1 100%}
+  .top .right{margin-left:auto}
+  nav button{padding:10px 12px 14px;min-width:0;flex:1;white-space:nowrap}
+  nav button .cnt{margin-left:6px}
+  #tableBtn{position:fixed;right:16px;bottom:16px;z-index:120;padding:12px 18px;font-size:15px;box-shadow:0 6px 20px rgba(0,0,0,.35)}
+  main{padding-bottom:100px}
+}
+@media(pointer:coarse){
+  .btn,.btn.small{min-height:44px;padding:10px 18px}
+  .chip{min-height:44px;padding:8px 16px}
+  select,input[type=text]{min-height:44px;font-size:17px}
+  .opt{min-height:48px;padding:12px 16px}
+  .tfrow .tfb{min-height:44px;padding:6px 16px}
+  input[type=range]{height:36px;width:230px}
+  .barrow{padding:8px 6px}
+  .bigformula .sym{min-width:56px}
+}
+@media(hover:none){
+  .btn:hover,.opt:hover:not(:disabled),.chip:hover,nav button:hover,.recipe div:hover,.bigformula .sym:hover{transform:none}
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="brand"><span class="logo">🔥</span><div><h1>Spezifische Wärmekapazität</h1><p>Lernapp · Physik · Jahrgang 9</p></div></div>
+  <nav id="nav">
+    <button data-p="1" class="active"><span class="n">1</span>Was ist c?<span class="cnt" id="cnt1"></span><i class="bar" id="nb1"></i></button>
+    <button data-p="2"><span class="n">2</span>Die Formel<span class="cnt" id="cnt2"></span><i class="bar" id="nb2"></i></button>
+    <button data-p="3"><span class="n">3</span>Rechnen<span class="cnt" id="cnt3"></span><i class="bar" id="nb3"></i></button>
+    <button data-p="4"><span class="n">4</span>Abschluss</button>
+  </nav>
+  <div class="right">
+    <div class="overall">Gesamt: <b id="overallPct">0 %</b><div class="track"><div class="fill" id="overallBar"></div></div></div>
+    <button class="btn blue small" id="tableBtn">📊 Stoffwerte</button>
+  </div>
+</header>
+
+<aside class="drawer" id="drawer" aria-label="Tabelle der spezifischen Wärmekapazitäten">
+  <h3>📊 Stoffwerte <button class="btn ghost small" id="drawerClose">✕</button></h3>
+  <table id="drawerTable"></table>
+  <p class="note">Spezifische Wärmekapazität c in kJ/(kg·°C), gerundete Werte. Gilt für 1 kg des Stoffes und eine Temperaturänderung um 1 °C.</p>
+</aside>
+
+<main>
+
+<!-- ===================== TEIL 1 ===================== -->
+<section class="part active" id="part1">
+
+  <div class="card hero">
+    <div class="floaters"><span style="left:6%;top:18%">🔥</span><span style="right:8%;top:12%;animation-delay:1s">🌡️</span><span style="right:22%;bottom:10%;animation-delay:2s">💧</span></div>
+    <h2>Willkommen! Warum wird Sand heißer als Wasser? 🏖️</h2>
+    <p>In dieser Lernapp findest du heraus, was die <b>spezifische Wärmekapazität</b> ist, wie man mit der Formel <span class="formula">ΔQ = c · m · Δϑ</span> rechnet und wie du Aufgaben dazu selbstständig löst. Bearbeite die Aufgaben der Reihe nach – bei jeder Aufgabe bekommst du sofort eine Rückmeldung.</p>
+    <div class="plan">
+      <div><b>Teil 1 · Was ist c?</b><span>ca. 25 min · Beobachten & Experimentieren</span></div>
+      <div><b>Teil 2 · Die Formel</b><span>ca. 20 min · Verstehen & Umstellen</span></div>
+      <div><b>Teil 3 · Rechnen</b><span>ca. 40 min · Üben mit Lösungswegen</span></div>
+      <div><b>Teil 4 · Abschluss</b><span>ca. 5 min · Merkzettel & Bilanz</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="step">1</span>Alltagsbeobachtung: Am Strand</h2>
+    <div class="task-box"><b class="t">Arbeitsauftrag</b>
+      <ol><li>Klicke auf „Sonne scheinen lassen“ und beobachte die beiden Thermometer.</li><li>Beantworte danach die Frage.</li></ol></div>
+    <div class="svgwrap"><svg id="beach" viewBox="0 0 880 300" role="img" aria-label="Strandszene mit Sand und Meer"></svg></div>
+    <div class="row"><button class="btn" id="beachBtn">☀️ Sonne scheinen lassen</button><small>Beide bekommen gleich viel Energie von der Sonne (bei gleicher Masse).</small></div>
+    <div id="p1a"></div>
+  </div>
+
+  <div class="card">
+    <h2><span class="step">2</span>Experiment: Das Heiz-Labor 🔬</h2>
+    <div class="task-box"><b class="t">Arbeitsauftrag</b>
+      <ol><li>Wähle bis zu 4 Stoffe aus. Alle haben die <b>gleiche Masse</b> und starten bei <b>20 °C</b>.</li>
+      <li>Stelle die Energie ein, die zugeführt wird, und drücke „Heizen“.</li>
+      <li>Vergleiche die Temperaturen. Probiere auch 2 kg und andere Stoffe aus.</li></ol></div>
+    <div class="chips" id="labChips"></div>
+    <div class="svgwrap"><svg id="labSvg" viewBox="0 0 880 400" role="img" aria-label="Heiz-Labor"></svg></div>
+    <div class="row">
+      <label>Masse: <select id="labMass"><option value="1">1 kg</option><option value="2">2 kg</option></select></label>
+      <label>Energie: <input type="range" id="labTarget" min="5" max="40" step="5" value="40"> <b id="labTargetV">40 kJ</b></label>
+      <button class="btn" id="labGo">🔥 Heizen</button><button class="btn ghost" id="labReset">↺ Zurücksetzen</button>
+    </div>
+    <div class="row" style="margin-top:0"><span style="flex:none;font-weight:600">Zugeführte Energie ΔQ:</span><div class="meter" style="flex:1;min-width:160px"><i id="labBar"></i></div><b id="labE" style="min-width:70px">0 kJ</b></div>
+    <div class="infobox" id="labRes">Drücke „Heizen“, um den Versuch zu starten.</div>
+    <div id="p1b"></div>
+  </div>
+
+  <div class="card">
+    <h2><span class="step">3</span>Das ist die spezifische Wärmekapazität</h2>
+    <div class="task-box"><b class="t">Arbeitsauftrag</b>
+      <ol><li>Wähle einen Stoff und erwärme 1 kg davon um genau 1 °C.</li><li>Lies ab, wie viel Energie dazu nötig ist. Probiere mehrere Stoffe.</li></ol></div>
+    <div class="grid2">
+      <div class="svgwrap"><svg id="defSvg" viewBox="0 0 440 300"></svg></div>
+      <div>
+        <div class="chips" id="defChips"></div>
+        <div class="row"><button class="btn" id="defGo">🔥 1 kg um 1 °C erwärmen</button></div>
+        <div class="row" style="margin-top:0"><span style="font-weight:600">Energie:</span><div class="meter" style="flex:1"><i id="defBar"></i></div><b id="defE" style="min-width:75px;text-align:right">0 kJ</b></div>
+        <div class="infobox" id="defInfo">Wähle einen Stoff und starte.</div>
+      </div>
+    </div>
+    <div class="merke">Die <b>spezifische Wärmekapazität c</b> eines Stoffes gibt an, wie viel Energie man braucht, um <b>1 kg</b> dieses Stoffes um <b>1 °C</b> zu erwärmen.<br>
+      Einheit: <span class="formula"><b>kJ/(kg·°C)</b></span> &nbsp;·&nbsp; Beispiel Wasser: <b>c = 4,2 kJ/(kg·°C)</b></div>
+    <p><b>Gedankenexperiment:</b> Berechne mit dem Wert von Wasser, c = 4,2 kJ/(kg·°C), und der Tabelle (Button „Stoffwerte“).</p>
+    <div id="p1c"></div>
+  </div>
+
+  <div class="card">
+    <h2><span class="step">4</span>Stoffe vergleichen</h2>
+    <div class="task-box"><b class="t">Arbeitsauftrag</b><ol><li>Klicke auf die Balken und lies die Werte ab.</li><li>Bearbeite dann die Aufgaben darunter.</li></ol></div>
+    <div class="bars" id="bars"></div>
+    <div class="infobox" id="barInfo">Klicke auf einen Balken für mehr Informationen.</div>
+    <div id="p1d" style="margin-top:16px"></div>
+  </div>
+
+  <div class="nextrow"><span></span><button class="btn green" data-goto="2">Weiter zu Teil 2: Die Formel →</button></div>
+</section>
+
+<!-- ===================== TEIL 2 ===================== -->
+<section class="part" id="part2">
+
+  <div class="card">
+    <h2><span class="step">5</span>Wovon hängt die Energie ab? – Probier’s aus!</h2>
+    <div class="task-box"><b class="t">Arbeitsauftrag</b>
+      <ol><li>Stelle Stoff, Masse und Temperaturänderung ein und beobachte die Energie ΔQ.</li>
+      <li>Klicke auf „📌 Vergleichswert merken“. Ändere danach <b>nur eine</b> Größe und lies ab, wie sich ΔQ verändert.</li>
+      <li>Fülle anschließend die Tabellen aus.</li></ol></div>
+    <div class="grid2">
+      <div class="svgwrap"><svg id="pgSvg" viewBox="0 0 460 320"></svg></div>
+      <div>
+        <div class="row"><label>Stoff: <select id="pgStoff"></select></label></div>
+        <div class="row"><label>Masse m: <input type="range" id="pgM" min="0.5" max="5" step="0.5" value="1"> <b id="pgMv">1 kg</b></label></div>
+        <div class="row"><label>Δϑ: <input type="range" id="pgT" min="10" max="100" step="10" value="20"> <b id="pgTv">20 °C</b></label></div>
+        <div class="row"><button class="btn small blue" id="pgRef">📌 Vergleichswert merken</button><button class="btn small ghost" id="pgRefClr">Löschen</button></div>
+        <div class="meter"><i id="pgBar"></i></div>
+        <div class="readout" id="pgOut"></div>
+        <div id="pgCmp" style="margin-top:8px"></div>
+      </div>
+    </div>
+    <div id="p2a"></div>
+  </div>
+
+  <div class="card">
+    <h2><span class="step">6</span>Die Formel für die Wärmeenergie</h2>
+    <div class="task-box"><b class="t">Arbeitsauftrag</b><ol><li>Klicke nacheinander auf die vier Größen der Formel und lies, was sie bedeuten.</li><li>Löse dann die Aufgaben zu Δϑ und den Einheiten.</li></ol></div>
+    <div class="bigformula" id="bigF">
+      <button class="sym" data-k="Q">ΔQ</button> = <button class="sym" data-k="c">c</button> · <button class="sym" data-k="m">m</button> · <button class="sym" data-k="T">Δϑ</button>
+    </div>
+    <div class="syminfo" id="symInfo">Klicke auf eine Größe der Formel.</div>
+    <div class="unitcheck">Einheiten-Check: &nbsp;<span class="formula">kJ/(<span class="cancel">kg</span>·<span class="cancel">°C</span>) · <span class="cancel">kg</span> · <span class="cancel">°C</span> = <b>kJ</b></span></div>
+    <div class="merke">Die Wärmeenergie <b>ΔQ</b> (in kJ) ist umso größer, je größer die <b>Masse m</b>, je größer die <b>Temperaturänderung Δϑ</b> und je größer die <b>spezifische Wärmekapazität c</b> ist.<br>
+      Es gilt: <span class="formula"><b>ΔQ = c · m · Δϑ</b></span> mit <span class="formula">Δϑ = ϑ<sub>Ende</sub> − ϑ<sub>Start</sub></span> (beim Abkühlen rechnest du mit dem Betrag).</div>
+    <div id="p2b"></div>
+  </div>
+
+  <div class="card">
+    <h2><span class="step">7</span>Die Formel umstellen</h2>
+    <div class="task-box"><b class="t">Arbeitsauftrag</b><ol><li>Klicke auf die Größe, die du berechnen möchtest, und schau dir die Umformung an.</li><li>Bearbeite die Aufgaben zum Umrechnen und Umstellen.</li></ol></div>
+    <div class="chips" id="rearrChips">
+      <button class="chip" data-k="Q">ΔQ gesucht</button><button class="chip" data-k="m">m gesucht</button><button class="chip" data-k="T">Δϑ gesucht</button><button class="chip" data-k="c">c gesucht</button>
+    </div>
+    <div class="rearr" id="rearr"><div class="ln cm" style="--i:0">Wähle oben, welche Größe gesucht ist.</div></div>
+    <div id="p2c" style="margin-top:16px"></div>
+  </div>
+
+  <div class="card">
+    <h2><span class="step">8</span>So gehst du beim Rechnen vor</h2>
+    <div class="recipe">
+      <div><b class="n">1</b><h4>Gegeben & gesucht</h4><p>Schreibe alle Größen mit Einheit auf. Rechne g in kg um und bilde Δϑ.</p></div>
+      <div><b class="n">2</b><h4>Formel umstellen</h4><p>Stelle <span class="formula">ΔQ = c · m · Δϑ</span> nach der gesuchten Größe um.</p></div>
+      <div><b class="n">3</b><h4>Einsetzen</h4><p>Setze die Zahlen <b>mit Einheiten</b> ein.</p></div>
+      <div><b class="n">4</b><h4>Ergebnis</h4><p>Rechne aus und schreibe einen Antwortsatz mit Einheit. Passt die Größenordnung?</p></div>
+    </div>
+    <div class="task-box"><b class="t">Beispiel Schritt für Schritt:</b> Wie viel Energie braucht man, um 3 kg Wasser von 20 °C auf 60 °C zu erwärmen?</div>
+    <div id="stepper" class="solbox show" style="min-height:70px"></div>
+    <div class="row"><button class="btn small" id="stepNext">Nächster Schritt ▶</button><button class="btn small ghost" id="stepReset">↺ Von vorn</button></div>
+  </div>
+
+  <div class="nextrow"><button class="btn ghost" data-goto="1">← Zurück zu Teil 1</button><button class="btn green" data-goto="3">Weiter zu Teil 3: Rechnen →</button></div>
+</section>
+
+<!-- ===================== TEIL 3 ===================== -->
+<section class="part" id="part3">
+  <div class="card hero">
+    <h2>Jetzt wird gerechnet! 🧮</h2>
+    <p>Löse die Aufgaben mit <span class="formula">ΔQ = c · m · Δϑ</span>. Die Werte für c findest du über den Button <b>„📊 Stoffwerte“</b> oben rechts. Gib deine Antwort als Zahl ein (Komma oder Punkt). Nach dem Prüfen kannst du dir den <b>Lösungsweg</b> anzeigen lassen – versuche es aber zuerst selbst!</p>
+    <p style="margin-bottom:0"><b>Empfehlung:</b> Bearbeite die Gruppen A–D in der Reihenfolge. Gruppe E enthält Challenges für Schnelle. Unten gibt es einen Aufgabengenerator ohne Ende.</p>
+  </div>
+  <div class="group"><h3><span class="ic">🔥</span>A · Energie berechnen (gesucht: ΔQ)</h3><div id="p3a"></div></div>
+  <div class="group"><h3><span class="ic">⚖️</span>B · Masse berechnen (gesucht: m)</h3><div id="p3b"></div></div>
+  <div class="group"><h3><span class="ic">🌡️</span>C · Temperaturänderung berechnen (gesucht: Δϑ bzw. ϑ)</h3><div id="p3c"></div></div>
+  <div class="group"><h3><span class="ic">🕵️</span>D · Spezifische Wärmekapazität berechnen (gesucht: c)</h3>
+    <p class="sub">Berechne c und finde mit der Stoffwerte-Tabelle heraus, um welchen Stoff es sich handelt.</p><div id="p3d"></div></div>
+  <div class="group"><h3><span class="ic">🚀</span>E · Challenges</h3><div id="p3e"></div></div>
+  <div class="group"><h3><span class="ic">🎲</span>Z · Aufgabengenerator (Zusatz)</h3>
+    <p class="sub">Immer neue Aufgaben zum Trainieren. Gelöst: <b id="genCount">0</b> · Serie: <b id="genStreak">0</b> 🔥</p>
+    <div id="genSlot"></div><button class="btn" id="genNew">🎲 Neue Aufgabe</button></div>
+  <div class="nextrow"><button class="btn ghost" data-goto="2">← Zurück zu Teil 2</button><button class="btn green" data-goto="4">Weiter zum Abschluss →</button></div>
+</section>
+
+<!-- ===================== TEIL 4 ===================== -->
+<section class="part" id="part4">
+  <div class="card">
+    <h2>🏆 Deine Bilanz</h2>
+    <div class="trophy"><div class="em" id="trophyEm">🎯</div><h3 id="trophyTxt">Los geht’s!</h3></div>
+    <div class="sumrow"><span>Teil 1 · Was ist c?</span><div class="tr"><i id="sm1"></i></div><b id="smt1">0 %</b></div>
+    <div class="sumrow"><span>Teil 2 · Die Formel</span><div class="tr"><i id="sm2"></i></div><b id="smt2">0 %</b></div>
+    <div class="sumrow"><span>Teil 3 · Rechnen</span><div class="tr"><i id="sm3"></i></div><b id="smt3">0 %</b></div>
+  </div>
+  <div class="card">
+    <h2>📝 Merkzettel</h2>
+    <div class="cheatsheet">
+      <div><h4>Spezifische Wärmekapazität c</h4><p>Energie, die nötig ist, um <b>1 kg</b> eines Stoffes um <b>1 °C</b> zu erwärmen.<br>Einheit: <b>kJ/(kg·°C)</b><br>Wasser: <b>4,2</b> · Aluminium: <b>0,90</b> · Eisen: <b>0,45</b></p></div>
+      <div><h4>Formel</h4><p class="formula" style="font-size:20px"><b>ΔQ = c · m · Δϑ</b></p><p>ΔQ in kJ · m in kg · Δϑ in °C<br>Δϑ = ϑ<sub>Ende</sub> − ϑ<sub>Start</sub></p></div>
+      <div><h4>Umgestellt</h4><p class="formula" style="font-size:19px">m = <span class="frac"><span>ΔQ</span><span>c · Δϑ</span></span> &nbsp; Δϑ = <span class="frac"><span>ΔQ</span><span>c · m</span></span> &nbsp; c = <span class="frac"><span>ΔQ</span><span>m · Δϑ</span></span></p></div>
+      <div><h4>Je-desto-Regeln</h4><p>Doppelte Masse → doppelte Energie.<br>Doppeltes Δϑ → doppelte Energie.<br>Kleines c → Stoff erwärmt und kühlt schnell.<br>Großes c → Stoff speichert viel Energie.</p></div>
+    </div>
+  </div>
+  <div class="card">
+    <h2>✅ Selbsteinschätzung</h2>
+    <div class="checklist" id="checklist">
+      <label><input type="checkbox"> Ich kann erklären, was die spezifische Wärmekapazität bedeutet.</label>
+      <label><input type="checkbox"> Ich kann Stoffe anhand ihrer spezifischen Wärmekapazität vergleichen.</label>
+      <label><input type="checkbox"> Ich kann die Formel ΔQ = c · m · Δϑ erklären und die Einheiten nennen.</label>
+      <label><input type="checkbox"> Ich kann die Formel nach m, Δϑ und c umstellen.</label>
+      <label><input type="checkbox"> Ich kann Aufgaben zur Wärmeenergie selbstständig lösen.</label>
+    </div>
+    <div class="row"><button class="btn ghost small" id="resetAll">🗑️ Fortschritt zurücksetzen</button></div>
+  </div>
+  <div class="nextrow"><button class="btn ghost" data-goto="3">← Zurück zu Teil 3</button><span></span></div>
+</section>
+
+</main>
+<footer>Lernapp „Spezifische Wärmekapazität“ · Temperaturen in °C · c in kJ/(kg·°C)</footer>
+
+<script>
+"use strict";
+/* ================= Hilfsfunktionen ================= */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const f = (x, d = 3) => { const k = Math.pow(10, d); return (Math.round(x * k) / k).toLocaleString('de-DE', {maximumFractionDigits: d, useGrouping: false}); };
+function h(tag, cls, html) { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const frac = (n, d) => `<span class="frac"><span>${n}</span><span>${d}</span></span>`;
+const approx = (a, b) => Math.abs(a - b) <= Math.max(Math.abs(b) * 0.015, 1e-9);
+function parseNum(s) { s = String(s).trim().replace(/\s/g, '').replace(',', '.'); const m = s.match(/^-?\d*\.?\d+/); return m ? parseFloat(m[0]) : NaN; }
+function anim(ms, fn, done) {
+  const t0 = performance.now();
+  (function step(now) {
+    const p = Math.min(1, (now - t0) / ms);
+    fn(p < .5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2, p);
+    if (p < 1) requestAnimationFrame(step); else if (done) done();
+  })(t0);
+}
+function burst(x, y, emojis = ['✨', '⭐', '🔥', '💧', '🎉']) {
+  for (let i = 0; i < 12; i++) {
+    const e = h('span', 'burst', pick(emojis)); const a = Math.random() * Math.PI * 2, d = 50 + Math.random() * 80;
+    e.style.left = x + 'px'; e.style.top = y + 'px';
+    e.style.setProperty('--dx', Math.cos(a) * d + 'px'); e.style.setProperty('--dy', Math.sin(a) * d - 30 + 'px'); e.style.setProperty('--rot', (Math.random() * 360 - 180) + 'deg');
+    document.body.appendChild(e); setTimeout(() => e.remove(), 1000);
+  }
+}
+
+/* ================= Stoffdaten ================= */
+const STOFFE = [
+  {id:'wasser', name:'Wasser', c:4.2, color:'#4db3ff', icon:'💧', liquid:true},
+  {id:'eis', name:'Eis', c:2.1, color:'#bfe9ff', icon:'🧊'},
+  {id:'ethanol', name:'Ethanol', c:2.4, color:'#c9a7ff', icon:'🧪', liquid:true},
+  {id:'oel', name:'Speiseöl', c:2.0, color:'#f5c542', icon:'🫒', liquid:true},
+  {id:'holz', name:'Holz', c:1.7, color:'#b07a45', icon:'🪵'},
+  {id:'luft', name:'Luft', c:1.0, color:'#cfe8ff', icon:'💨'},
+  {id:'alu', name:'Aluminium', c:0.90, color:'#c4ccd6', icon:'🥫'},
+  {id:'glas', name:'Glas', c:0.84, color:'#9fd9d0', icon:'🥛'},
+  {id:'sand', name:'Sand', c:0.80, color:'#e6c27a', icon:'🏖️'},
+  {id:'eisen', name:'Eisen', c:0.45, color:'#7b8794', icon:'⚙️'},
+  {id:'kupfer', name:'Kupfer', c:0.38, color:'#d9824a', icon:'🪙'},
+  {id:'silber', name:'Silber', c:0.24, color:'#dfe3e8', icon:'🥄'},
+  {id:'blei', name:'Blei', c:0.13, color:'#5b6573', icon:'⚖️'}
+];
+const S = Object.fromEntries(STOFFE.map(s => [s.id, s]));
+
+/* ================= Fortschritt ================= */
+const KEY = 'waermekapazitaet-lernapp-v1';
+let state = {solved: {}, check: {}};
+try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && s.solved) state = s; } catch (e) {}
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} };
+const reg = {};
+function updateProgress() {
+  const tot = {1:0, 2:0, 3:0}, done = {1:0, 2:0, 3:0};
+  for (const id in reg) { tot[reg[id]]++; if (state.solved[id]) done[reg[id]]++; }
+  let T = 0, D = 0;
+  [1, 2, 3].forEach(p => {
+    const pct = tot[p] ? Math.round(100 * done[p] / tot[p]) : 0; T += tot[p]; D += done[p];
+    $('#nb' + p).style.width = pct + '%'; $('#cnt' + p).textContent = done[p] + '/' + tot[p];
+    $('#sm' + p).style.width = pct + '%'; $('#smt' + p).textContent = pct + ' %';
+  });
+  const all = T ? Math.round(100 * D / T) : 0;
+  $('#overallPct').textContent = all + ' %'; $('#overallBar').style.width = all + '%';
+  let em = '🎯', tx = 'Los geht’s! Bearbeite die Aufgaben der Reihe nach.';
+  if (all >= 90) { em = '🏆'; tx = 'Physik-Profi! Du beherrschst die spezifische Wärmekapazität.'; }
+  else if (all >= 60) { em = '🥇'; tx = 'Stark! Du bist auf einem sehr guten Weg.'; }
+  else if (all >= 30) { em = '💪'; tx = 'Gutes Zwischenergebnis – weiter so!'; }
+  $('#trophyEm').textContent = em; $('#trophyTxt').textContent = tx;
+}
+
+/* ================= Fragekarten ================= */
+const qHead = d => `<div class="q-head"><span class="q-num">${d.no || '•'}</span><h4>${d.title || ''}</h4>${d.tag ? `<span class="tag ${d.tagc || ''}">${d.tag}</span>` : ''}<span class="tick">✓</span></div>`;
+function solvedNow(card, d, ev) {
+  card.classList.add('done');
+  if (!state.solved[d.id]) { state.solved[d.id] = 1; save(); }
+  updateProgress();
+  const r = card.getBoundingClientRect(); burst(r.left + Math.min(r.width - 40, 160), r.top + 40);
+}
+function stepsHTML(steps) {
+  return steps.map((s, i) => `<div class="sol-step" style="--i:${i}"><span class="sl ${s[0] === 'Ergebnis' || s[0] === 'Antwort' ? 'res' : ''}">${s[0]}</span><div>${s[1]}</div></div>`).join('');
+}
+function toggle(box, show) { box.classList.toggle('show', show !== undefined ? show : !box.classList.contains('show')); }
+
+function numCard(d) {
+  const c = h('article', 'q' + (state.solved[d.id] ? ' done' : ''));
+  c.innerHTML = qHead(d) +
+    `<div class="q-body">${d.icon ? `<div class="q-icon">${d.icon}</div>` : ''}<div class="q-text">${d.text}</div></div>
+     <div class="q-answer"><label>${d.label || 'Antwort:'} <input type="text" inputmode="decimal" autocomplete="off" placeholder="Zahl"> <span class="unit">${d.unit}</span></label>
+     ${d.identify ? `<label>Stoff: <select><option value="">– wählen –</option>${STOFFE.map(s => `<option value="${s.id}">${s.name}</option>`).join('')}</select></label>` : ''}
+     <button class="btn check">Prüfen</button><button class="btn ghost tip">💡 Tipp</button><button class="btn ghost sol">📖 Lösungsweg</button></div>
+     <div class="fb"></div><div class="tipbox">${d.hint || ''}</div><div class="solbox"></div>`;
+  const inp = $('input', c), sel = $('select', c), fb = $('.fb', c), tip = $('.tipbox', c), sol = $('.solbox', c);
+  let tries = 0;
+  const say = (cls, msg) => { fb.className = 'fb show ' + cls; fb.innerHTML = msg; };
+  const check = () => {
+    const v = parseNum(inp.value);
+    if (isNaN(v)) { say('warn', 'Bitte gib eine Zahl ein.'); return; }
+    const ok = approx(v, d.answer);
+    if (ok && d.identify && sel.value !== d.identify) { say('warn', 'Der Zahlenwert für c stimmt. Welcher Stoff gehört dazu? Schau in die Stoffwerte-Tabelle.'); return; }
+    if (ok) { say('ok', `Richtig! ${d.okText || ''}<b>${f(d.answer)} ${d.unit}</b>${d.identify ? ' → ' + S[d.identify].name : ''}`); solvedNow(c, d); }
+    else {
+      tries++; c.classList.remove('shake'); void c.offsetWidth; c.classList.add('shake');
+      let m = d.diag ? d.diag(v) : ''; if (!m) m = 'Noch nicht ganz. Rechne Schritt für Schritt nach.';
+      if (tries >= 2) m += ' Tipp: Nutze den 💡-Tipp oder den Lösungsweg.';
+      say('bad', m);
+    }
+  };
+  $('.check', c).onclick = check;
+  inp.addEventListener('keydown', e => { if (e.key === 'Enter') check(); });
+  $('.tip', c).onclick = () => toggle(tip);
+  let built = false;
+  $('.sol', c).onclick = () => {
+    if (!built) { sol.innerHTML = `<b>Lösungsweg</b>` + stepsHTML(d.steps); built = true; toggle(sol, true); }
+    else toggle(sol);
+  };
+  return c;
+}
+
+function mcCard(d) {
+  const c = h('article', 'q' + (state.solved[d.id] ? ' done' : ''));
+  c.innerHTML = qHead(d) + `<div class="q-body">${d.icon ? `<div class="q-icon">${d.icon}</div>` : ''}<div class="q-text">${d.text}</div></div><div class="opts"></div><div class="fb"></div>`;
+  const box = $('.opts', c), fb = $('.fb', c);
+  const items = shuffle(d.options.map((o, i) => ({o, i})));
+  items.forEach(it => {
+    const b = h('button', 'opt', it.o); b.type = 'button';
+    b.onclick = () => {
+      if (it.i === d.correct) {
+        b.classList.add('right'); $$('.opt', box).forEach(x => x.disabled = true);
+        fb.className = 'fb show ok'; fb.innerHTML = 'Richtig! ' + (d.explain || ''); solvedNow(c, d);
+      } else {
+        b.classList.add('wrong'); b.disabled = true; fb.className = 'fb show bad';
+        fb.innerHTML = (d.wrong && d.wrong[it.i]) || 'Das stimmt leider nicht. Versuche es noch einmal.';
+      }
+    };
+    box.appendChild(b);
+  });
+  return c;
+}
+
+function gridCard(d) {
+  const c = h('article', 'q' + (state.solved[d.id] ? ' done' : ''));
+  c.innerHTML = qHead(d) + `<div class="q-text">${d.text}</div>
+    <table class="grid"><tr><th>${d.headA}</th><th>${d.headB}</th></tr>${d.rows.map((r, i) => `<tr><td>${r.a}</td><td><input type="text" inputmode="decimal" autocomplete="off" data-i="${i}"> ${d.unit}</td></tr>`).join('')}</table>
+    <div class="q-answer"><button class="btn check">Prüfen</button><button class="btn ghost tip">💡 Tipp</button></div><div class="fb"></div><div class="tipbox">${d.hint || ''}</div>`;
+  const fb = $('.fb', c), ins = $$('input', c);
+  $('.check', c).onclick = () => {
+    let all = true, empty = false;
+    ins.forEach((inp, i) => {
+      const v = parseNum(inp.value); inp.classList.remove('ok', 'bad');
+      if (isNaN(v)) { empty = true; all = false; return; }
+      if (approx(v, d.rows[i].ans)) inp.classList.add('ok'); else { inp.classList.add('bad'); all = false; }
+    });
+    if (empty && !all) { fb.className = 'fb show warn'; fb.innerHTML = 'Fülle alle Felder aus.'; return; }
+    if (all) { fb.className = 'fb show ok'; fb.innerHTML = 'Richtig! ' + (d.explain || ''); solvedNow(c, d); }
+    else { fb.className = 'fb show bad'; fb.innerHTML = 'Rot markierte Felder stimmen noch nicht.'; c.classList.remove('shake'); void c.offsetWidth; c.classList.add('shake'); }
+  };
+  $('.tip', c).onclick = () => toggle($('.tipbox', c));
+  ins.forEach(i => i.addEventListener('keydown', e => { if (e.key === 'Enter') $('.check', c).click(); }));
+  return c;
+}
+
+function tfCard(d) {
+  const c = h('article', 'q' + (state.solved[d.id] ? ' done' : ''));
+  c.innerHTML = qHead(d) + `<div class="q-text">${d.text}</div>` +
+    d.rows.map((r, i) => `<div class="tfrow" data-i="${i}"><span class="st">${r.t}</span><button class="tfb" data-v="1">wahr</button><button class="tfb" data-v="0">falsch</button></div>`).join('') +
+    `<div class="q-answer"><button class="btn check">Prüfen</button></div><div class="fb"></div>`;
+  $$('.tfrow', c).forEach(row => $$('.tfb', row).forEach(b => b.onclick = () => { $$('.tfb', row).forEach(x => x.classList.remove('sel')); b.classList.add('sel'); row.classList.remove('ok', 'bad'); }));
+  $('.check', c).onclick = () => {
+    let all = true, empty = false; const fb = $('.fb', c); let why = '';
+    $$('.tfrow', c).forEach((row, i) => {
+      const s = $('.tfb.sel', row); row.classList.remove('ok', 'bad');
+      if (!s) { empty = true; all = false; return; }
+      const ok = (s.dataset.v === '1') === d.rows[i].a; row.classList.add(ok ? 'ok' : 'bad'); if (!ok) { all = false; why += `<br>• ${d.rows[i].why}`; }
+    });
+    if (empty) { fb.className = 'fb show warn'; fb.innerHTML = 'Bewerte alle Aussagen.'; return; }
+    if (all) { fb.className = 'fb show ok'; fb.innerHTML = 'Alles richtig!'; solvedNow(c, d); }
+    else { fb.className = 'fb show bad'; fb.innerHTML = 'Einige Aussagen sind falsch bewertet. Denk nach:' + why; c.classList.remove('shake'); void c.offsetWidth; c.classList.add('shake'); }
+  };
+  return c;
+}
+
+function orderCard(d) {
+  const c = h('article', 'q' + (state.solved[d.id] ? ' done' : ''));
+  c.innerHTML = qHead(d) + `<div class="q-text">${d.text}</div><div class="orderpool"></div><div class="orderline"></div><div class="q-answer"><button class="btn check">Prüfen</button><button class="btn ghost reset">↺ Neu</button></div><div class="fb"></div>`;
+  const pool = $('.orderpool', c), line = $('.orderline', c), fb = $('.fb', c); let chosen = [];
+  shuffle(d.items).forEach(id => { const b = h('button', 'chip', `${S[id].icon} ${S[id].name}`); b.dataset.id = id; b.onclick = () => { chosen.push(id); b.disabled = true; line.appendChild(h('span', 'chip', `${chosen.length}. ${S[id].icon} ${S[id].name}`)); }; pool.appendChild(b); });
+  $('.reset', c).onclick = () => { chosen = []; line.innerHTML = ''; $$('.chip', pool).forEach(b => b.disabled = false); fb.className = 'fb'; };
+  $('.check', c).onclick = () => {
+    if (chosen.length < d.items.length) { fb.className = 'fb show warn'; fb.innerHTML = 'Klicke alle Stoffe in der richtigen Reihenfolge an.'; return; }
+    if (chosen.join() === d.answer.join()) { fb.className = 'fb show ok'; fb.innerHTML = 'Richtig! ' + (d.explain || ''); solvedNow(c, d); }
+    else { fb.className = 'fb show bad'; fb.innerHTML = 'Die Reihenfolge stimmt noch nicht. Nutze die Stoffwerte-Tabelle und klicke auf „Neu“.'; c.classList.remove('shake'); void c.offsetWidth; c.classList.add('shake'); }
+  };
+  return c;
+}
+
+/* ================= Rechenaufgaben (Generator-Logik) ================= */
+const UNITS = {Q: 'kJ', m: 'kg', dT: '°C', T2: '°C', T1: '°C', c: 'kJ/(kg·°C)'};
+function prep(r) {
+  const s = S[r.stoff], t = Object.assign({}, r, {s, c: s.c});
+  if (t.t1 !== undefined) t.t2 = t.cool ? t.t1 - t.dT : t.t1 + t.dT;
+  t.Q = Math.round(t.c * t.m * t.dT * 1e6) / 1e6;
+  return t;
+}
+const M = t => `<b>${t.mG ? f(t.m * 1000) + ' g' : f(t.m) + ' kg'}</b>`;
+function stepsFor(t) {
+  const cS = `${f(t.c)} kJ/(kg·°C)`, g = [];
+  const showT = t.t1 !== undefined && ['Q', 'm', 'c'].includes(t.find);
+  if (t.find !== 'c') g.push(`c = ${cS} <small>(${t.s.name}, aus der Tabelle)</small>`);
+  if (t.find !== 'm') g.push(t.mG ? `m = ${f(t.m * 1000)} g = ${f(t.m)} kg <small>(umgerechnet)</small>` : `m = ${f(t.m)} kg`);
+  if (t.find === 'T2') g.push(`ϑ<sub>Start</sub> = ${t.t1} °C`);
+  if (t.find === 'T1') g.push(`ϑ<sub>Ende</sub> = ${t.t2} °C`);
+  if (showT) { const hi = Math.max(t.t1, t.t2), lo = Math.min(t.t1, t.t2); g.push(`Δϑ = ${hi} °C − ${lo} °C = ${f(t.dT)} °C${t.cool ? ' <small>(Abkühlung: Betrag)</small>' : ''}`); }
+  else if (['Q', 'm', 'c'].includes(t.find)) g.push(`Δϑ = ${f(t.dT)} °C`);
+  if (t.find !== 'Q') g.push(`ΔQ = ${f(t.Q)} kJ`);
+  const want = {Q: 'ΔQ (Energie)', m: 'm (Masse)', dT: 'Δϑ (Temperaturänderung)', T2: 'ϑ<sub>Ende</sub> (Endtemperatur)', T1: 'ϑ<sub>Start</sub> (Starttemperatur)', c: 'c (spezifische Wärmekapazität)'}[t.find];
+  const st = [['Gegeben', g.join('<br>')], ['Gesucht', want]];
+  const F = x => `<span class="formula">${x}</span>`;
+  if (t.find === 'Q') {
+    st.push(['Formel', F('ΔQ = c · m · Δϑ')], ['Einsetzen', F(`ΔQ = ${cS} · ${f(t.m)} kg · ${f(t.dT)} °C`)], ['Ergebnis', F(`ΔQ = <b>${f(t.Q)} kJ</b>`)]);
+  } else if (t.find === 'm') {
+    st.push(['Umstellen', F('m = ' + frac('ΔQ', 'c · Δϑ'))], ['Einsetzen', F('m = ' + frac(`${f(t.Q)} kJ`, `${cS} · ${f(t.dT)} °C`))],
+      ['Rechnen', F(`c · Δϑ = ${f(t.c * t.dT)} kJ/kg → m = ${f(t.Q)} kJ : ${f(t.c * t.dT)} kJ/kg`)], ['Ergebnis', F(`m = <b>${f(t.m)} kg</b>`)]);
+  } else if (['dT', 'T2', 'T1'].includes(t.find)) {
+    st.push(['Umstellen', F('Δϑ = ' + frac('ΔQ', 'c · m'))], ['Einsetzen', F('Δϑ = ' + frac(`${f(t.Q)} kJ`, `${cS} · ${f(t.m)} kg`))],
+      ['Rechnen', F(`c · m = ${f(t.c * t.m)} kJ/°C → Δϑ = ${f(t.Q)} kJ : ${f(t.c * t.m)} kJ/°C = <b>${f(t.dT)} °C</b>`)]);
+    if (t.find === 'T2') st.push(['Ergebnis', F(`ϑ<sub>Ende</sub> = ϑ<sub>Start</sub> ${t.cool ? '−' : '+'} Δϑ = ${t.t1} °C ${t.cool ? '−' : '+'} ${f(t.dT)} °C = <b>${f(t.t2)} °C</b>`)]);
+    else if (t.find === 'T1') st.push(['Ergebnis', F(`ϑ<sub>Start</sub> = ϑ<sub>Ende</sub> − Δϑ = ${t.t2} °C − ${f(t.dT)} °C = <b>${f(t.t1)} °C</b>`)]);
+    else st.push(['Ergebnis', F(`Δϑ = <b>${f(t.dT)} °C</b>`)]);
+  } else {
+    st.push(['Umstellen', F('c = ' + frac('ΔQ', 'm · Δϑ'))], ['Einsetzen', F('c = ' + frac(`${f(t.Q)} kJ`, `${f(t.m)} kg · ${f(t.dT)} °C`))],
+      ['Rechnen', F(`m · Δϑ = ${f(t.m * t.dT)} kg·°C → c = ${f(t.Q)} kJ : ${f(t.m * t.dT)} kg·°C`)], ['Ergebnis', F(`c = <b>${f(t.c)} kJ/(kg·°C)</b>`) + `<br>Laut Tabelle gehört dieser Wert zu <b>${t.s.name}</b>.`]);
+  }
+  return st;
+}
+const HINTS = {
+  Q: 'Gesucht ist ΔQ. Bestimme zuerst Δϑ (Endtemperatur − Starttemperatur) und rechne die Masse in kg um. Setze dann in ΔQ = c · m · Δϑ ein.',
+  m: 'Stelle die Formel nach m um: m = ΔQ / (c · Δϑ). Den Wert für c findest du in der Stoffwerte-Tabelle.',
+  dT: 'Stelle die Formel nach Δϑ um: Δϑ = ΔQ / (c · m).',
+  T2: 'Berechne zuerst Δϑ = ΔQ / (c · m). Die Endtemperatur ist ϑ<sub>Start</sub> + Δϑ.',
+  T1: 'Berechne zuerst Δϑ = ΔQ / (c · m). Die Starttemperatur ist ϑ<sub>Ende</sub> − Δϑ.',
+  c: 'Stelle die Formel nach c um: c = ΔQ / (m · Δϑ). Vergleiche das Ergebnis dann mit der Tabelle.'
+};
+function taskToNum(r) {
+  const t = prep(r), ans = {Q: t.Q, m: t.m, dT: t.dT, T2: t.t2, T1: t.t1, c: t.c}[t.find];
+  return Object.assign({}, r, {
+    text: r.text(t), unit: UNITS[t.find], answer: ans, steps: stepsFor(t), hint: HINTS[t.find],
+    identify: t.find === 'c' ? t.stoff : null, label: {Q: 'ΔQ =', m: 'm =', dT: 'Δϑ =', T2: 'ϑ<sub>Ende</sub> =', T1: 'ϑ<sub>Start</sub> =', c: 'c ='}[t.find],
+    diag: v => {
+      if (t.mG && t.find === 'Q' && approx(v, t.Q * 1000)) return 'Der Wert ist 1000-mal zu groß. Hast du die Masse von g in kg umgerechnet?';
+      if (['T2', 'T1'].includes(t.find) && approx(v, t.dT)) return 'Das ist die Temperaturänderung Δϑ. Gesucht ist aber eine Temperatur ϑ.';
+      if (t.find === 'Q' && t.t1 !== undefined && approx(v, t.c * t.m * t.t2)) return 'Du hast die Endtemperatur statt der Temperaturänderung eingesetzt. Es gilt Δϑ = ϑ<sub>Ende</sub> − ϑ<sub>Start</sub>.';
+      if (approx(v, t.Q * 1000) || approx(v, t.Q / 1000)) return 'Prüfe die Einheiten: Energie in kJ, nicht in J.';
+      return '';
+    }
+  });
+}
+function taskCard(r) { return numCard(taskToNum(r)); }
+
+/* ---------- Aufgaben Teil 3 ---------- */
+const T3 = {
+ a: [
+  {id:'a1', no:'A1', title:'Wasserkocher', icon:'🫖', stoff:'wasser', m:2, t1:20, dT:50, find:'Q', text:t=>`Ein Wasserkocher erhitzt ${M(t)} Wasser von <b>${t.t1} °C</b> auf <b>${t.t2} °C</b>. Berechne die Energie, die das Wasser dabei aufnimmt.`},
+  {id:'a2', no:'A2', title:'Aluminiumtopf', icon:'🍳', stoff:'alu', m:0.5, t1:20, dT:200, find:'Q', text:t=>`Ein leerer Aluminiumtopf (${M(t)}) wird auf der Herdplatte von <b>${t.t1} °C</b> auf <b>${t.t2} °C</b> erhitzt. Wie viel Energie nimmt der Topf auf?`},
+  {id:'a3', no:'A3', title:'Kupferstück', icon:'🪙', stoff:'kupfer', m:0.8, mG:true, t1:25, dT:100, find:'Q', text:t=>`Ein Kupferstück mit der Masse ${M(t)} wird von <b>${t.t1} °C</b> auf <b>${t.t2} °C</b> erwärmt. Berechne die zugeführte Energie. <small>Achtung: Einheit der Masse!</small>`},
+  {id:'a4', no:'A4', title:'Badewanne', icon:'🛁', stoff:'wasser', m:120, t1:15, dT:25, find:'Q', text:t=>`In eine Badewanne fließen ${M(t)} Wasser mit <b>${t.t1} °C</b>. Das Wasser soll auf <b>${t.t2} °C</b> erwärmt werden. Wie viel Energie ist dafür nötig?`},
+  {id:'a5', no:'A5', title:'Heiße Pfanne', icon:'🍳', stoff:'eisen', m:3, t1:250, dT:230, cool:true, find:'Q', text:t=>`Eine Eisenpfanne (${M(t)}) kühlt von <b>${t.t1} °C</b> auf <b>${t.t2} °C</b> ab. Wie viel Energie gibt sie an die Umgebung ab? <small>Rechne mit dem Betrag von Δϑ.</small>`},
+  {id:'a6', no:'A6', title:'Silberlöffel im Tee', icon:'🥄', stoff:'silber', m:0.05, mG:true, t1:20, dT:80, find:'Q', text:t=>`Ein Silberlöffel (${M(t)}) wird in heißen Tee gehalten und erwärmt sich von <b>${t.t1} °C</b> auf <b>${t.t2} °C</b>. Wie viel Energie nimmt er auf?`}
+ ],
+ b: [
+  {id:'b1', no:'B1', title:'Wassertopf', icon:'🥘', stoff:'wasser', m:4, dT:30, find:'m', text:t=>`Einem Topf mit Wasser werden <b>${f(t.Q)} kJ</b> zugeführt. Dabei steigt die Temperatur um <b>${t.dT} °C</b>. Wie viel Wasser (Masse) ist im Topf?`},
+  {id:'b2', no:'B2', title:'Aluminiumblock', icon:'🧱', stoff:'alu', m:0.5, dT:100, find:'m', text:t=>`Ein Aluminiumblock nimmt <b>${f(t.Q)} kJ</b> auf und wird dabei um <b>${t.dT} °C</b> wärmer. Welche Masse hat der Block?`},
+  {id:'b3', no:'B3', title:'Fritteuse', icon:'🍟', stoff:'oel', m:2, dT:30, find:'m', text:t=>`Speiseöl in einer Fritteuse nimmt <b>${f(t.Q)} kJ</b> auf und erwärmt sich um <b>${t.dT} °C</b>. Wie viel Öl ist in der Fritteuse?`},
+  {id:'b4', no:'B4', title:'Eisenkugel', icon:'⚫', stoff:'eisen', m:1.5, t1:20, dT:100, find:'m', text:t=>`Eine Eisenkugel wird von <b>${t.t1} °C</b> auf <b>${t.t2} °C</b> erhitzt. Dafür werden <b>${f(t.Q)} kJ</b> benötigt. Welche Masse hat die Kugel?`}
+ ],
+ c: [
+  {id:'c1', no:'C1', title:'Tee kochen', icon:'☕', stoff:'wasser', m:1.5, dT:50, find:'dT', text:t=>`Zu ${M(t)} Wasser werden <b>${f(t.Q)} kJ</b> Energie zugeführt. Um wie viel °C steigt die Temperatur des Wassers?`},
+  {id:'c2', no:'C2', title:'Bleiklotz', icon:'⚖️', stoff:'blei', m:2, dT:50, find:'dT', text:t=>`Ein Bleiklotz (${M(t)}) nimmt <b>${f(t.Q)} kJ</b> auf. Um wie viel °C erwärmt er sich? <small>Blei erwärmt sich besonders leicht!</small>`},
+  {id:'c3', no:'C3', title:'Endtemperatur Kupfer', icon:'🔶', stoff:'kupfer', m:0.4, t1:20, dT:100, find:'T2', text:t=>`Ein Kupferstück (${M(t)}) hat eine Temperatur von <b>${t.t1} °C</b> und nimmt <b>${f(t.Q)} kJ</b> auf. Welche Endtemperatur hat das Kupfer?`},
+  {id:'c4', no:'C4', title:'Ethanol', icon:'🧪', stoff:'ethanol', m:0.5, dT:50, find:'dT', text:t=>`${M(t)} Ethanol werden mit <b>${f(t.Q)} kJ</b> erwärmt. Berechne die Temperaturänderung Δϑ.`}
+ ],
+ d: [
+  {id:'d1', no:'D1', title:'Unbekanntes Metall I', icon:'🔍', stoff:'alu', m:2, t1:20, dT:50, find:'c', text:t=>`Ein Metallstück (${M(t)}) wird von <b>${t.t1} °C</b> auf <b>${t.t2} °C</b> erwärmt. Dazu sind <b>${f(t.Q)} kJ</b> nötig. Berechne c und bestimme das Metall.`},
+  {id:'d2', no:'D2', title:'Unbekanntes Metall II', icon:'🔍', stoff:'eisen', m:0.5, dT:100, find:'c', text:t=>`Ein Metallstück (${M(t)}) nimmt <b>${f(t.Q)} kJ</b> auf und erwärmt sich dabei um <b>${t.dT} °C</b>. Berechne c und bestimme das Metall.`},
+  {id:'d3', no:'D3', title:'Unbekannte Flüssigkeit', icon:'🧴', stoff:'ethanol', m:2, t1:20, dT:25, find:'c', text:t=>`${M(t)} einer farblosen Flüssigkeit werden von <b>${t.t1} °C</b> auf <b>${t.t2} °C</b> erwärmt. Dazu sind <b>${f(t.Q)} kJ</b> nötig. Berechne c und bestimme die Flüssigkeit.`},
+  {id:'d4', no:'D4', title:'Durchsichtiger Körper', icon:'🥛', stoff:'glas', m:0.25, mG:true, dT:200, find:'c', text:t=>`Ein durchsichtiger Körper (${M(t)}) wird um <b>${t.dT} °C</b> erwärmt. Dazu sind <b>${f(t.Q)} kJ</b> nötig. Berechne c und bestimme den Stoff.`}
+ ],
+ e: [
+  {id:'e1', no:'E1', title:'Sonnenkollektor', icon:'☀️', tag:'Challenge', tagc:'hard', stoff:'wasser', m:200, t1:10, dT:50, find:'Q', text:t=>`Ein Sonnenkollektor auf dem Dach erwärmt ${M(t)} Wasser von <b>${t.t1} °C</b> auf <b>${t.t2} °C</b>. Wie viel Energie in kJ liefert die Sonne dabei?`},
+  {id:'e2', no:'E2', title:'Wärmflasche', icon:'🛌', tag:'Challenge', tagc:'hard', stoff:'wasser', m:1.5, t1:60, dT:25, cool:true, find:'Q', text:t=>`Eine Wärmflasche ist mit ${M(t)} Wasser gefüllt. Das Wasser kühlt über Nacht von <b>${t.t1} °C</b> auf <b>${t.t2} °C</b> ab. Wie viel Energie gibt es an das Bett ab?`},
+  {id:'e3', no:'E3', title:'Wie warm war der Block?', icon:'🧊', tag:'Challenge', tagc:'hard', stoff:'eisen', m:2, t1:20, dT:100, find:'T1', text:t=>`Ein Eisenblock (${M(t)}) nimmt <b>${f(t.Q)} kJ</b> Energie auf und hat danach eine Temperatur von <b>${t.t2} °C</b>. Welche Temperatur hatte er vorher?`}
+ ]
+};
+const T3custom = [
+  {type:'num', id:'e4', no:'E4', title:'Wasser gegen Aluminium', icon:'⚔️', tag:'Challenge', tagc:'hard', unit:'°C', answer:55, label:'Unterschied:',
+   text:`Je <b>1 kg Wasser</b> und <b>1 kg Aluminium</b> (beide am Anfang gleich warm) bekommen jeweils <b>63 kJ</b> Energie. Um wie viel °C erwärmt sich das Aluminium <b>stärker</b> als das Wasser?`,
+   hint:'Berechne Δϑ für beide Stoffe mit Δϑ = ΔQ / (c · m) und bilde dann die Differenz.',
+   steps:[['Gegeben','ΔQ = 63 kJ; m = 1 kg<br>c(Wasser) = 4,2 kJ/(kg·°C); c(Aluminium) = 0,9 kJ/(kg·°C)'],['Wasser',`Δϑ = ${frac('63 kJ','4,2 kJ/(kg·°C) · 1 kg')} = 15 °C`],['Aluminium',`Δϑ = ${frac('63 kJ','0,9 kJ/(kg·°C) · 1 kg')} = 70 °C`],['Ergebnis','70 °C − 15 °C = <b>55 °C</b>']]},
+  {type:'num', id:'e5', no:'E5', title:'Wie lange dauert das Aufheizen?', icon:'⏱️', tag:'Challenge', tagc:'hard', unit:'s', answer:252, label:'Zeit t =',
+   text:`Ein Wasserkocher hat die Heizleistung <b>2 kW</b> (das bedeutet 2 kJ pro Sekunde). Er erhitzt <b>1,5 kg Wasser</b> von <b>20 °C</b> auf <b>100 °C</b>. Wie lange dauert das (ohne Verluste)? <small>Tipp: Zeit = Energie : Leistung</small>`,
+   hint:'Berechne zuerst die nötige Energie ΔQ. Teile sie dann durch 2 kJ/s.',
+   steps:[['Gegeben','c = 4,2 kJ/(kg·°C); m = 1,5 kg; Δϑ = 100 °C − 20 °C = 80 °C; P = 2 kJ/s'],['Energie',`ΔQ = 4,2 kJ/(kg·°C) · 1,5 kg · 80 °C = 504 kJ`],['Zeit',`t = ${frac('ΔQ','P')} = ${frac('504 kJ','2 kJ/s')} = <b>252 s</b>`],['Ergebnis','Das sind etwa 4 Minuten und 12 Sekunden.']]}
+];
+
+/* ================= Teil 1/2 Fragen ================= */
+const P1A = [
+ {type:'mc', id:'p1_beach', no:'1.1', title:'Warum ist der Sand heißer?', icon:'🏖️',
+  text:'Am Strand scheint die Sonne auf Sand und Wasser. Warum ist der Sand mittags viel heißer als das Meer?',
+  options:['Sand hat eine kleinere spezifische Wärmekapazität als Wasser, deshalb erwärmt er sich bei gleicher Energie stärker.','Die Sonne scheint nur auf den Sand.','Wasser hat eine kleinere spezifische Wärmekapazität als Sand.','Sand ist immer schwerer als Wasser.'],
+  correct:0, explain:'Wasser braucht für 1 °C Erwärmung etwa 5-mal so viel Energie wie Sand (4,2 gegenüber 0,8 kJ/(kg·°C)).'}
+];
+const P1B = [
+ {type:'mc', id:'p1_lab1', no:'2.1', title:'Auswertung des Experiments', icon:'🔬',
+  text:'Alle Stoffe hatten gleiche Masse und bekamen gleich viel Energie. Welcher Stoff erwärmt sich am stärksten?',
+  options:['Der Stoff mit der kleinsten spezifischen Wärmekapazität.','Der Stoff mit der größten spezifischen Wärmekapazität.','Der Stoff, der zuerst in das Gefäß gefüllt wurde.','Alle erwärmen sich gleich stark.'],
+  correct:0, explain:'Ein kleines c bedeutet: wenig Energie reicht für 1 °C Erwärmung – die Temperatur steigt schnell.'},
+ {type:'mc', id:'p1_lab2', no:'2.2', title:'Wasser im Vergleich', icon:'💧',
+  text:'Im Experiment war Wasser immer der „langsamste“ Stoff. Was bedeutet das?',
+  options:['Wasser braucht für die gleiche Temperaturerhöhung mehr Energie als die anderen Stoffe.','Wasser bekommt weniger Energie zugeführt.','Wasser hat die kleinste Masse.','Wasser erwärmt sich gar nicht.'],
+  correct:0, explain:'Wasser hat eine große spezifische Wärmekapazität und kann viel Energie aufnehmen, ohne dass die Temperatur stark steigt.'}
+];
+const P1C = [
+ {type:'num', id:'p1_n1', no:'3.1', title:'Energie für 1 kg Aluminium', unit:'kJ', answer:0.9, label:'Energie:',
+  text:'Wie viel Energie braucht man, um <b>1 kg Aluminium</b> um <b>1 °C</b> zu erwärmen? (Tabelle)', hint:'Genau das gibt die spezifische Wärmekapazität c an!',
+  steps:[['Überlegung','c(Aluminium) = 0,9 kJ/(kg·°C) bedeutet: 0,9 kJ für 1 kg und 1 °C.'],['Ergebnis','<b>0,9 kJ</b>']]},
+ {type:'num', id:'p1_n2', no:'3.2', title:'Mehr Temperaturänderung', unit:'kJ', answer:42, label:'Energie:',
+  text:'Wie viel Energie braucht man, um <b>1 kg Wasser</b> um <b>10 °C</b> zu erwärmen?', hint:'Für 1 °C braucht man 4,2 kJ. Für 10 °C ist es zehnmal so viel.',
+  steps:[['Überlegung','1 °C → 4,2 kJ<br>10 °C → 10 · 4,2 kJ'],['Ergebnis','<b>42 kJ</b>']]},
+ {type:'num', id:'p1_n3', no:'3.3', title:'Mehr Masse', unit:'kJ', answer:8.4, label:'Energie:',
+  text:'Wie viel Energie braucht man, um <b>2 kg Wasser</b> um <b>1 °C</b> zu erwärmen?', hint:'1 kg braucht 4,2 kJ. 2 kg brauchen doppelt so viel.',
+  steps:[['Überlegung','1 kg → 4,2 kJ<br>2 kg → 2 · 4,2 kJ'],['Ergebnis','<b>8,4 kJ</b>']]},
+ {type:'mc', id:'p1_def', no:'3.4', title:'Was bedeutet c = 4,2 kJ/(kg·°C)?', icon:'💡',
+  text:'Für Wasser gilt c = 4,2 kJ/(kg·°C). Was bedeutet das?',
+  options:['Um 1 kg Wasser um 1 °C zu erwärmen, braucht man 4,2 kJ Energie.','Wasser hat eine Temperatur von 4,2 °C.','Wasser wiegt 4,2 kg.','Man muss Wasser 4,2 Sekunden erhitzen.'],
+  correct:0, explain:'Die spezifische Wärmekapazität gibt die Energie pro kg und pro °C an.'}
+];
+const P1D = [
+ {type:'order', id:'p1_order', no:'4.1', title:'Ordnen nach c', text:'Klicke die Stoffe der Reihe nach an: vom <b>kleinsten</b> zum <b>größten</b> Wert der spezifischen Wärmekapazität.',
+  items:['wasser','blei','alu','oel','eisen'], answer:['blei','eisen','alu','oel','wasser'], explain:'Blei (0,13) < Eisen (0,45) < Aluminium (0,90) < Speiseöl (2,0) < Wasser (4,2).'},
+ {type:'mc', id:'p1_cmp', no:'4.2', title:'Kupfer oder Eisen?', icon:'⚙️',
+  text:'Du erwärmst 1 kg Kupfer und 1 kg Eisen jeweils um 1 °C. Was stimmt?',
+  options:['Eisen braucht mehr Energie, weil c(Eisen) größer ist als c(Kupfer).','Kupfer braucht mehr Energie.','Beide brauchen gleich viel Energie.','Das lässt sich ohne Masse nicht sagen.'],
+  correct:0, explain:'0,45 kJ für Eisen gegenüber 0,38 kJ für Kupfer.'},
+ {type:'tf', id:'p1_tf', no:'4.3', title:'Wahr oder falsch?', text:'Bewerte jede Aussage.',
+  rows:[
+   {t:'Je größer c, desto mehr Energie braucht man, um 1 kg des Stoffes um 1 °C zu erwärmen.', a:true, why:'Das stimmt: c ist genau diese Energie.'},
+   {t:'Alle Stoffe haben die gleiche spezifische Wärmekapazität.', a:false, why:'Jeder Stoff hat seinen eigenen Wert (siehe Tabelle).'},
+   {t:'Aluminium erwärmt sich bei gleicher Masse und gleicher Energie stärker als Wasser.', a:true, why:'Aluminium hat das kleinere c.'},
+   {t:'Die Einheit der spezifischen Wärmekapazität ist kJ/(kg·°C).', a:true, why:'Energie pro Masse und Temperaturänderung.'},
+   {t:'Ein Stoff mit kleinem c kühlt bei Energieabgabe langsam ab.', a:false, why:'Mit kleinem c sinkt die Temperatur schon bei wenig abgegebener Energie stark – er kühlt schnell ab.'},
+   {t:'Wasser kann im Vergleich zu vielen anderen Stoffen besonders viel Energie speichern.', a:true, why:'c(Wasser) = 4,2 ist sehr groß.'}]},
+ {type:'mc', id:'p1_bottle', no:'4.4', title:'Warum Wasser in der Wärmflasche?', icon:'🛌',
+  text:'Wärmflaschen und Heizungsrohre werden oft mit Wasser gefüllt. Was ist der Grund?',
+  options:['Wasser hat ein großes c: Es speichert viel Energie und gibt sie langsam wieder ab.','Wasser ist billiger als jeder andere Stoff.','Wasser hat ein kleines c und wird deshalb schnell heiß.','Wasser hat keine Masse.'],
+  correct:0, explain:'Ein großes c bedeutet, dass viel Energie im Stoff steckt, wenn er heiß ist.'}
+];
+const P2A = [
+ {type:'grid', id:'p2_g1', no:'5.1', title:'Je größer die Masse …', text:'<b>Wasser</b> wird jeweils um <b>10 °C</b> erwärmt. Berechne (oder lies am Regler ab) die Energie.',
+  headA:'Masse m', headB:'Energie ΔQ', unit:'kJ', rows:[{a:'1 kg', ans:42},{a:'2 kg', ans:84},{a:'4 kg', ans:168}], hint:'Für 1 kg und 10 °C braucht man 42 kJ. Doppelte Masse → doppelte Energie.',
+  explain:'Masse und Energie sind <b>proportional</b>: doppelte Masse → doppelte Energie.'},
+ {type:'grid', id:'p2_g2', no:'5.2', title:'Je größer die Temperaturänderung …', text:'<b>1 kg Wasser</b> wird erwärmt. Berechne die Energie.',
+  headA:'Temperaturänderung Δϑ', headB:'Energie ΔQ', unit:'kJ', rows:[{a:'10 °C', ans:42},{a:'20 °C', ans:84},{a:'50 °C', ans:210}], hint:'Pro °C braucht 1 kg Wasser 4,2 kJ.',
+  explain:'Auch Δϑ und ΔQ sind <b>proportional</b>.'},
+ {type:'grid', id:'p2_g3', no:'5.3', title:'Je größer c …', text:'<b>1 kg</b> des Stoffes wird um <b>10 °C</b> erwärmt. Berechne die Energie.',
+  headA:'Stoff', headB:'Energie ΔQ', unit:'kJ', rows:[{a:'Wasser (c = 4,2)', ans:42},{a:'Aluminium (c = 0,9)', ans:9},{a:'Eisen (c = 0,45)', ans:4.5},{a:'Blei (c = 0,13)', ans:1.3}], hint:'ΔQ = c · 1 kg · 10 °C',
+  explain:'Je größer c, desto mehr Energie wird benötigt.'},
+ {type:'mc', id:'p2_m1', no:'5.4', title:'Masse verdoppelt', icon:'⚖️', text:'Stoff und Δϑ bleiben gleich, die Masse wird <b>verdoppelt</b>. Was passiert mit ΔQ?',
+  options:['ΔQ wird doppelt so groß.','ΔQ bleibt gleich.','ΔQ wird halb so groß.','ΔQ wird viermal so groß.'], correct:0, explain:'ΔQ = c · m · Δϑ – m verdoppelt sich, also auch ΔQ.'},
+ {type:'mc', id:'p2_m2', no:'5.5', title:'Δϑ halbiert', icon:'🌡️', text:'Stoff und Masse bleiben gleich, die Temperaturänderung wird <b>halbiert</b>. Was passiert mit ΔQ?',
+  options:['ΔQ wird halb so groß.','ΔQ wird doppelt so groß.','ΔQ bleibt gleich.','ΔQ wird null.'], correct:0, explain:'Halbes Δϑ → halbe Energie.'},
+ {type:'mc', id:'p2_m3', no:'5.6', title:'Masse und Δϑ verdoppelt', icon:'✖️', text:'Stoff gleich, aber <b>Masse und Temperaturänderung</b> werden jeweils verdoppelt. Was passiert mit ΔQ?',
+  options:['ΔQ wird viermal so groß.','ΔQ wird doppelt so groß.','ΔQ bleibt gleich.','ΔQ wird achtmal so groß.'], correct:0, explain:'2 · 2 = 4. Beide Faktoren wirken sich aus.'},
+ {type:'mc', id:'p2_m4', no:'5.7', title:'Anderer Stoff', icon:'🔁', text:'Masse und Δϑ bleiben gleich. Statt Wasser nimmst du Eisen. Was passiert mit ΔQ?',
+  options:['ΔQ wird kleiner, weil c(Eisen) kleiner ist.','ΔQ wird größer, weil Eisen schwerer ist.','ΔQ bleibt gleich.','ΔQ wird null.'], correct:0, explain:'c(Eisen) = 0,45 gegenüber c(Wasser) = 4,2: Eisen braucht nur etwa ein Zehntel der Energie.'}
+];
+const P2B = [
+ {type:'num', id:'p2_dt1', no:'6.1', title:'Δϑ bestimmen: Erwärmung', icon:'📈', unit:'°C', answer:45, label:'Δϑ =',
+  text:'Wasser wird von <b>18 °C</b> auf <b>63 °C</b> erwärmt. Wie groß ist die Temperaturänderung Δϑ?', hint:'Δϑ = ϑ<sub>Ende</sub> − ϑ<sub>Start</sub>',
+  steps:[['Formel','Δϑ = ϑ<sub>Ende</sub> − ϑ<sub>Start</sub>'],['Einsetzen','Δϑ = 63 °C − 18 °C'],['Ergebnis','Δϑ = <b>45 °C</b>']]},
+ {type:'num', id:'p2_dt2', no:'6.2', title:'Δϑ bestimmen: Abkühlung', icon:'📉', unit:'°C', answer:65, label:'Δϑ =',
+  text:'Eine Tasse Tee kühlt von <b>90 °C</b> auf <b>25 °C</b> ab. Wie groß ist die Temperaturänderung (als Betrag)?', hint:'Ziehe die kleinere von der größeren Temperatur ab.',
+  steps:[['Rechnen','Δϑ = 90 °C − 25 °C'],['Ergebnis','Δϑ = <b>65 °C</b>']]},
+ {type:'num', id:'p2_dt3', no:'6.3', title:'Δϑ mit negativer Starttemperatur', icon:'❄️', unit:'°C', answer:17, label:'Δϑ =',
+  text:'Eis wird von <b>−5 °C</b> auf <b>12 °C</b> erwärmt. Wie groß ist Δϑ? <small>(Achtung: negatives Vorzeichen!)</small>', hint:'12 − (−5) = 12 + 5',
+  steps:[['Rechnen','Δϑ = 12 °C − (−5 °C) = 12 °C + 5 °C'],['Ergebnis','Δϑ = <b>17 °C</b>']]},
+ {type:'mc', id:'p2_unit', no:'6.4', title:'Einheit von ΔQ', icon:'📏', text:'c wird in kJ/(kg·°C), m in kg und Δϑ in °C eingesetzt. In welcher Einheit erhältst du ΔQ?',
+  options:['kJ','kg','°C','kJ/kg'], correct:0, explain:'kg und °C kürzen sich weg, es bleibt kJ.'}
+];
+const P2C = [
+ {type:'num', id:'p2_u1', no:'7.1', title:'Umrechnen: g in kg', icon:'🔄', unit:'kg', answer:0.25, label:'m =', text:'Rechne um: <b>250 g</b> = ? kg', hint:'1000 g = 1 kg, also durch 1000 teilen.', steps:[['Rechnen','250 g : 1000 = <b>0,25 kg</b>']]},
+ {type:'num', id:'p2_u2', no:'7.2', title:'Umrechnen: g in kg', icon:'🔄', unit:'kg', answer:0.04, label:'m =', text:'Rechne um: <b>40 g</b> = ? kg', hint:'Durch 1000 teilen.', steps:[['Rechnen','40 g : 1000 = <b>0,04 kg</b>']]},
+ {type:'num', id:'p2_u3', no:'7.3', title:'Umrechnen: kg in g', icon:'🔄', unit:'g', answer:1500, label:'m =', text:'Rechne um: <b>1,5 kg</b> = ? g', hint:'Mal 1000 nehmen.', steps:[['Rechnen','1,5 kg · 1000 = <b>1500 g</b>']]},
+ {type:'mc', id:'p2_r1', no:'7.4', title:'Nach m umstellen', icon:'🔧', text:'ΔQ = c · m · Δϑ. Welche Formel gilt für die Masse m?',
+  options:['m = ΔQ / (c · Δϑ)','m = ΔQ · c · Δϑ','m = c · Δϑ / ΔQ','m = ΔQ / c + Δϑ'], correct:0, explain:'Beide Seiten durch (c · Δϑ) teilen.'},
+ {type:'mc', id:'p2_r2', no:'7.5', title:'Nach Δϑ umstellen', icon:'🔧', text:'ΔQ = c · m · Δϑ. Welche Formel gilt für die Temperaturänderung Δϑ?',
+  options:['Δϑ = ΔQ / (c · m)','Δϑ = c · m / ΔQ','Δϑ = ΔQ · c · m','Δϑ = ΔQ − c · m'], correct:0, explain:'Beide Seiten durch (c · m) teilen.'},
+ {type:'mc', id:'p2_r3', no:'7.6', title:'Nach c umstellen', icon:'🔧', text:'ΔQ = c · m · Δϑ. Welche Formel gilt für die spezifische Wärmekapazität c?',
+  options:['c = ΔQ / (m · Δϑ)','c = m · Δϑ / ΔQ','c = ΔQ · m · Δϑ','c = ΔQ / m + Δϑ'], correct:0, explain:'Beide Seiten durch (m · Δϑ) teilen.'}
+];
+
+/* ================= Einbinden ================= */
+function mountQ(slot, part, list) {
+  const box = typeof slot === 'string' ? document.getElementById(slot) : slot;
+  list.forEach(d => {
+    reg[d.id] = part;
+    box.appendChild({mc: mcCard, num: numCard, grid: gridCard, tf: tfCard, order: orderCard}[d.type](d));
+  });
+}
+mountQ('p1a', 1, P1A); mountQ('p1b', 1, P1B); mountQ('p1c', 1, P1C); mountQ('p1d', 1, P1D);
+mountQ('p2a', 2, P2A); mountQ('p2b', 2, P2B); mountQ('p2c', 2, P2C);
+Object.keys(T3).forEach(g => T3[g].forEach(r => {
+  reg[r.id] = 3; $('#p3' + g).appendChild(taskCard(Object.assign({tag: g === 'e' ? 'Challenge' : '', tagc: 'hard'}, r)));
+}));
+T3custom.forEach(d => { reg[d.id] = 3; $('#p3e').appendChild(numCard(d)); });
+
+/* ================= Aufgabengenerator ================= */
+const gen = {count: 0, streak: 0};
+function newGen() {
+  const pool = STOFFE.filter(s => s.id !== 'luft');
+  const s = pick(pool), m = pick([0.5, 1, 1.5, 2, 2.5, 3, 4, 5]), dT = pick([10, 20, 25, 30, 40, 50, 60, 80]);
+  const find = pick(['Q', 'm', 'dT', 'c', 'Q', 'T2']), t1 = pick([10, 15, 20, 25, 30]);
+  const nm = s.name;
+  const txt = {
+    Q: t => `Eine Probe ${nm} (${M(t)}) wird von <b>${t.t1} °C</b> auf <b>${t.t2} °C</b> erwärmt. Welche Energie wird dafür benötigt?`,
+    m: t => `Eine Probe ${nm} wird um <b>${t.dT} °C</b> erwärmt. Dafür werden <b>${f(t.Q)} kJ</b> benötigt. Welche Masse hat die Probe?`,
+    dT: t => `Einer Probe ${nm} (${M(t)}) werden <b>${f(t.Q)} kJ</b> zugeführt. Um wie viel °C steigt ihre Temperatur?`,
+    T2: t => `Eine Probe ${nm} (${M(t)}) hat <b>${t.t1} °C</b> und nimmt <b>${f(t.Q)} kJ</b> auf. Welche Endtemperatur hat sie?`,
+    c: t => `Eine Probe eines unbekannten Stoffes (${M(t)}) wird um <b>${t.dT} °C</b> erwärmt. Dafür werden <b>${f(t.Q)} kJ</b> benötigt. Berechne c und finde den Stoff.`
+  }[find];
+  const raw = {id:'gen' + Date.now(), no:'Z', title:'Zufallsaufgabe', icon:pick(['🎲', '🧮', '🔥', '🌡️']), stoff:s.id, m, dT, t1: (find === 'Q' || find === 'T2') ? t1 : undefined, find, text: txt};
+  const d = taskToNum(raw);
+  const card = numCard(d);
+  $('.check', card).addEventListener('click', () => { if (card.classList.contains('done') && !card.dataset.cnt) { card.dataset.cnt = 1; gen.count++; gen.streak++; refreshGen(); } });
+  $('.check', card).addEventListener('click', () => { if (!card.classList.contains('done') && !card.dataset.miss && $('.fb', card).classList.contains('bad')) { card.dataset.miss = 1; gen.streak = 0; refreshGen(); } });
+  const slot = $('#genSlot'); slot.innerHTML = ''; slot.appendChild(card);
+}
+function refreshGen() { $('#genCount').textContent = gen.count; $('#genStreak').textContent = gen.streak; }
+$('#genNew').onclick = newGen; newGen();
+
+/* ================= Navigation ================= */
+function showPart(n) {
+  $$('.part').forEach(p => p.classList.toggle('active', p.id === 'part' + n));
+  $$('#nav button').forEach(b => b.classList.toggle('active', b.dataset.p == n));
+  window.scrollTo({top: 0, behavior: 'smooth'});
+  if (n === 1) setTimeout(animateBars, 300);
+  updateProgress();
+}
+$$('#nav button').forEach(b => b.onclick = () => showPart(+b.dataset.p));
+$$('[data-goto]').forEach(b => b.onclick = () => showPart(+b.dataset.goto));
+$('#tableBtn').onclick = () => $('#drawer').classList.toggle('open');
+$('#drawerClose').onclick = () => $('#drawer').classList.remove('open');
+$('#drawerTable').innerHTML = '<tr><th>Stoff</th><th>c in kJ/(kg·°C)</th></tr>' + STOFFE.slice().sort((a, b) => b.c - a.c).map(s => `<tr><td>${s.icon} ${s.name}</td><td>${f(s.c, 2)}</td></tr>`).join('');
+$('#resetAll').onclick = () => { if (confirm('Wirklich den gesamten Fortschritt löschen?')) { state = {solved: {}, check: {}}; save(); location.reload(); } };
+$$('#checklist input').forEach((cb, i) => { cb.checked = !!state.check[i]; cb.onchange = () => { state.check[i] = cb.checked; save(); if (cb.checked) { const r = cb.getBoundingClientRect(); burst(r.left, r.top, ['✅', '⭐']); } }; });
+
+/* ================= Thermometer-Helfer ================= */
+const TH = {};
+function thermo(id, x, y, H, min, max, color = '#e53935') {
+  TH[id] = {y, H, min, max};
+  let ticks = '';
+  for (let i = 0; i <= 4; i++) { const ty = y - 6 - (H - 14) * i / 4; ticks += `<line x1="${x + 8}" x2="${x + 14}" y1="${ty}" y2="${ty}" stroke="#8a97b3" stroke-width="1.5"/><text x="${x + 17}" y="${ty + 4}" font-size="10" fill="#5b6b8a">${Math.round(min + (max - min) * i / 4)}</text>`; }
+  return `<g><rect x="${x - 8}" y="${y - H}" width="16" height="${H}" rx="8" fill="#fff" stroke="#8a97b3" stroke-width="2"/>
+    <rect id="${id}-hg" x="${x - 4}" y="${y}" width="8" height="0" rx="4" fill="${color}"/>
+    <circle cx="${x}" cy="${y + 8}" r="13" fill="${color}" stroke="#8a97b3" stroke-width="2"/>${ticks}</g>`;
+}
+function setThermo(id, T) {
+  const t = TH[id], r = document.getElementById(id + '-hg'); if (!t || !r) return;
+  const fr = Math.max(0, Math.min(1, (T - t.min) / (t.max - t.min))), hh = fr * (t.H - 14) + 4;
+  r.setAttribute('y', t.y - hh); r.setAttribute('height', hh + 6);
+}
+const FLAME = (x, y, k = 1) => `<g transform="translate(${x} ${y}) scale(${k})"><g class="flame"><path d="M0 0 C-18 -14 -14 -26 0 -46 C3 -32 18 -26 16 -12 C15 -4 8 0 0 0Z" fill="#ff7a1a"/><path class="flame f2" d="M0 0 C-9 -7 -7 -14 0 -26 C2 -17 9 -14 8 -6 C7 -2 4 0 0 0Z" fill="#ffd23f"/></g></g>`;
+
+/* ================= 1.1 Strand ================= */
+(function () {
+  const svg = $('#beach');
+  let rays = ''; for (let i = 0; i < 12; i++) rays += `<line x1="46" y1="0" x2="66" y2="0" stroke="#ffd23f" stroke-width="5" stroke-linecap="round" transform="rotate(${i * 30})"/>`;
+  svg.innerHTML = `<defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5ab9ff"/><stop offset="1" stop-color="#e2f4ff"/></linearGradient>
+    <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3aa0f0"/><stop offset="1" stop-color="#0b5fa8"/></linearGradient>
+    <linearGradient id="sandg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f8dc98"/><stop offset="1" stop-color="#dfae5c"/></linearGradient></defs>
+    <rect width="880" height="300" fill="url(#sky)"/>
+    <g class="cloud"><ellipse cx="160" cy="55" rx="44" ry="16" fill="#fff" opacity=".9"/><ellipse cx="190" cy="45" rx="30" ry="14" fill="#fff" opacity=".9"/></g>
+    <g class="cloud" style="animation-delay:-8s"><ellipse cx="450" cy="40" rx="40" ry="14" fill="#fff" opacity=".8"/><ellipse cx="475" cy="32" rx="26" ry="12" fill="#fff" opacity=".8"/></g>
+    <g transform="translate(780 70)"><g class="sun-rays">${rays}</g><circle r="38" fill="#ffd23f"/><circle r="38" fill="none" stroke="#ffb300" stroke-width="3"/></g>
+    <rect x="0" y="150" width="520" height="150" fill="url(#sea)"/>
+    <g class="wave"><path d="M-60 150 q30 -14 60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 V170 H-60Z" fill="#7cc4ff" opacity=".8"/></g>
+    <g class="wave w2"><path d="M-60 175 q30 -12 60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 V195 H-60Z" fill="#5aaef0" opacity=".6"/></g>
+    <path d="M440 215 C470 170 560 165 640 180 S800 175 880 190 V300 H440Z" fill="url(#sandg)"/>
+    <text x="260" y="285" text-anchor="middle" class="svg-title" fill="#fff" style="fill:#fff">💧 Wasser (c = 4,2)</text>
+    <text x="680" y="285" text-anchor="middle" class="svg-title">🏖️ Sand (c = 0,8)</text>
+    ${thermo('bW', 260, 255, 130, 15, 60)}${thermo('bS', 660, 255, 130, 15, 60)}
+    <text id="bWt" x="300" y="200" class="svg-val" style="fill:#fff">20 °C</text><text id="bSt" x="700" y="200" class="svg-val">20 °C</text>`;
+  setThermo('bW', 20); setThermo('bS', 20);
+  $('#beachBtn').onclick = function () {
+    this.disabled = true;
+    const k = 24; // gleiche Energie für gleiche Masse
+    anim(3500, p => {
+      const E = k * p; const tw = 20 + E / 4.2, ts = 20 + E / 0.8;
+      setThermo('bW', tw); setThermo('bS', ts);
+      $('#bWt').textContent = f(tw, 1) + ' °C'; $('#bSt').textContent = f(ts, 1) + ' °C';
+    }, () => { this.disabled = false; this.textContent = '↺ Nochmal'; });
+  };
+})();
+
+/* ================= 2 Heiz-Labor ================= */
+const LAB = {sel: ['wasser', 'oel', 'alu', 'eisen'], mass: 1, target: 40, E: 0, run: false, raf: 0};
+const LABPOOL = ['wasser', 'ethanol', 'oel', 'sand', 'alu', 'eisen', 'kupfer'];
+const labT = (s) => 20 + LAB.E / (s.c * LAB.mass);
+function vesselSVG(s, cx) {
+  const lbl = `<text x="${cx}" y="248" text-anchor="middle" font-size="15" font-weight="700" fill="${s.liquid ? '#0d3a63' : '#fff'}">${LAB.mass} kg</text>`;
+  if (s.liquid) return `<rect x="${cx - 48}" y="160" width="96" height="100" rx="8" fill="${s.color}" opacity=".85"/><path d="M${cx - 50} 120 V250 Q${cx - 50} 262 ${cx - 38} 262 H${cx + 38} Q${cx + 50} 262 ${cx + 50} 250 V120" fill="rgba(255,255,255,.2)" stroke="#6b7a99" stroke-width="3"/>${lbl}`;
+  if (s.id === 'sand') return `<path d="M${cx - 56} 262 Q${cx - 30} 180 ${cx} 176 Q${cx + 30} 180 ${cx + 56} 262Z" fill="${s.color}" stroke="#b58b3c" stroke-width="2"/>${[-20, 0, 18, -8, 26, -30].map((d, i) => `<circle cx="${cx + d}" cy="${236 - i * 7 % 30}" r="2" fill="#b58b3c"/>`).join('')}${lbl.replace('fill="#fff"', 'fill="#6b4d12"')}`;
+  return `<rect x="${cx - 48}" y="170" width="96" height="90" rx="8" fill="${s.color}" stroke="#4a5468" stroke-width="3"/><polygon points="${cx - 44},174 ${cx - 14},174 ${cx - 44},204" fill="#fff" opacity=".35"/>${lbl.replace('#fff', '#1d2a44')}`;
+}
+function labBuild() {
+  const n = LAB.sel.length, W = 880 / n; let g = '';
+  LAB.sel.forEach((id, i) => {
+    const s = S[id], cx = i * W + W / 2 - 25;
+    g += `<g><text x="${cx + 10}" y="32" text-anchor="middle" class="svg-title">${s.icon} ${s.name}</text><text x="${cx + 10}" y="52" text-anchor="middle" class="svg-sub">c = ${f(s.c)} kJ/(kg·°C)</text>
+      ${vesselSVG(s, cx)}
+      <rect x="${cx - 62}" y="266" width="124" height="14" rx="4" fill="#3b4252"/><rect id="hp${i}" x="${cx - 56}" y="280" width="112" height="4" fill="#ff7a1a" opacity="0"/>
+      <g id="fl${i}" opacity="0" style="transition:opacity .4s">${FLAME(cx - 32, 330, 1)}${FLAME(cx, 330, 1.15)}${FLAME(cx + 32, 330, 1)}</g>
+      ${thermo('lt' + i, cx + 82, 255, 150, 0, 140)}
+      <text id="lv${i}" x="${cx + 10}" y="364" text-anchor="middle" class="svg-val">20 °C</text><text id="ld${i}" x="${cx + 10}" y="386" text-anchor="middle" class="svg-delta">Δϑ = 0 °C</text></g>`;
+  });
+  $('#labSvg').innerHTML = g;
+  labUpdate();
+}
+function labUpdate() {
+  LAB.sel.forEach((id, i) => {
+    const s = S[id], T = labT(s);
+    setThermo('lt' + i, T);
+    $('#lv' + i).textContent = f(T, 1) + ' °C'; $('#ld' + i).textContent = 'Δϑ = ' + f(T - 20, 1) + ' °C';
+    $('#fl' + i).setAttribute('opacity', LAB.run ? 1 : 0); $('#hp' + i).setAttribute('opacity', LAB.run ? 1 : 0);
+  });
+  $('#labBar').style.width = (LAB.E / 40 * 100) + '%'; $('#labE').textContent = f(LAB.E, 1) + ' kJ';
+}
+function labChips() {
+  const box = $('#labChips'); box.innerHTML = '';
+  LABPOOL.forEach(id => {
+    const b = h('button', 'chip' + (LAB.sel.includes(id) ? ' on' : ''), `${S[id].icon} ${S[id].name}`);
+    b.onclick = () => {
+      if (LAB.run) return;
+      if (LAB.sel.includes(id)) { if (LAB.sel.length > 2) LAB.sel = LAB.sel.filter(x => x !== id); }
+      else { if (LAB.sel.length >= 4) LAB.sel.shift(); LAB.sel.push(id); }
+      LAB.E = 0; labChips(); labBuild(); $('#labRes').innerHTML = 'Drücke „Heizen“, um den Versuch zu starten.';
+    };
+    box.appendChild(b);
+  });
+}
+$('#labTarget').oninput = e => { LAB.target = +e.target.value; $('#labTargetV').textContent = LAB.target + ' kJ'; };
+$('#labMass').onchange = e => { LAB.mass = +e.target.value; LAB.E = 0; labBuild(); };
+$('#labReset').onclick = () => { LAB.run = false; LAB.E = 0; cancelAnimationFrame(LAB.raf); $('#labGo').disabled = false; labBuild(); $('#labRes').innerHTML = 'Drücke „Heizen“, um den Versuch zu starten.'; };
+$('#labGo').onclick = () => {
+  if (LAB.run) return; LAB.E = 0; LAB.run = true; $('#labGo').disabled = true;
+  const t0 = performance.now(), dur = 3000 + LAB.target * 80;
+  (function step(now) {
+    const p = Math.min(1, (now - t0) / dur); LAB.E = LAB.target * p; labUpdate();
+    if (p < 1) LAB.raf = requestAnimationFrame(step);
+    else {
+      LAB.run = false; $('#labGo').disabled = false; labUpdate();
+      const rows = LAB.sel.map(id => ({s: S[id], d: LAB.target / (S[id].c * LAB.mass)})).sort((a, b) => b.d - a.d);
+      $('#labRes').innerHTML = `<b>Ergebnis</b> (Energie ${LAB.target} kJ, Masse je ${LAB.mass} kg): ` + rows.map(r => `<span class="pill ${r === rows[0] ? 'up' : ''}">${r.s.icon} ${r.s.name}: +${f(r.d, 1)} °C</span>`).join('') +
+        `<br>Am stärksten erwärmt: <b>${rows[0].s.name}</b> (kleinstes c). Am wenigsten: <b>${rows[rows.length - 1].s.name}</b> (größtes c).`;
+      if (LAB.sel.length) { const r = $('#labRes').getBoundingClientRect(); burst(r.left + 60, r.top, ['🔥', '🌡️']); }
+    }
+  })(t0);
+};
+labChips(); labBuild();
+
+/* ================= 3 Definition ================= */
+const DEF = {id: 'wasser', busy: false};
+function defBuild() {
+  const s = S[DEF.id];
+  $('#defSvg').innerHTML = `<defs><linearGradient id="cubeg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".6"/><stop offset="1" stop-color="#000" stop-opacity=".18"/></linearGradient></defs>
+    <rect x="70" y="80" width="140" height="130" rx="${s.liquid ? 14 : 8}" fill="${s.color}" stroke="#4a5468" stroke-width="3"/><rect x="70" y="80" width="140" height="130" rx="${s.liquid ? 14 : 8}" fill="url(#cubeg)"/>
+    <text x="140" y="155" text-anchor="middle" font-size="30" font-weight="800" fill="#1d2a44" opacity=".85">1 kg</text>
+    <text x="140" y="60" text-anchor="middle" class="svg-title">${s.icon} ${s.name}</text>
+    <rect x="58" y="212" width="164" height="14" rx="4" fill="#3b4252"/>
+    <g id="defFl" opacity="0" style="transition:opacity .4s">${FLAME(110, 270, 1.1)}${FLAME(140, 270, 1.3)}${FLAME(170, 270, 1.1)}</g>
+    ${thermo('dt', 330, 235, 170, 19, 22)}
+    <text id="dtv" x="330" y="280" text-anchor="middle" class="svg-val">20,0 °C</text><text x="330" y="40" text-anchor="middle" class="svg-sub">Thermometer</text>`;
+  setThermo('dt', 20); $('#defBar').style.width = '0'; $('#defE').textContent = '0 kJ';
+  $('#defInfo').innerHTML = `Du hast <b>${s.name}</b> gewählt: <b>c = ${f(s.c)} kJ/(kg·°C)</b>. Starte den Versuch!`;
+}
+function defChips() {
+  const box = $('#defChips'); box.innerHTML = '';
+  STOFFE.forEach(s => { const b = h('button', 'chip' + (s.id === DEF.id ? ' on' : ''), `${s.icon} ${s.name}`); b.onclick = () => { if (DEF.busy) return; DEF.id = s.id; defChips(); defBuild(); }; box.appendChild(b); });
+}
+$('#defGo').onclick = () => {
+  if (DEF.busy) return; DEF.busy = true; const s = S[DEF.id]; $('#defGo').disabled = true; $('#defFl').setAttribute('opacity', 1);
+  anim(2500, p => {
+    const E = s.c * p, T = 20 + p; setThermo('dt', T); $('#dtv').textContent = f(T, 1) + ' °C'; $('#defE').textContent = f(E, 2) + ' kJ'; $('#defBar').style.width = (E / 4.2 * 100) + '%';
+  }, () => {
+    DEF.busy = false; $('#defGo').disabled = false; $('#defFl').setAttribute('opacity', 0);
+    $('#defInfo').innerHTML = `1 kg ${s.name} um 1 °C zu erwärmen, hat <b>${f(s.c)} kJ</b> gekostet.<br>Das ist die spezifische Wärmekapazität: <b>c(${s.name}) = ${f(s.c)} kJ/(kg·°C)</b>.`;
+    const r = $('#defInfo').getBoundingClientRect(); burst(r.left + 80, r.top, ['⚡', '✨']);
+  });
+};
+defChips(); defBuild();
+
+/* ================= 4 Balkendiagramm ================= */
+(function () {
+  const box = $('#bars'), max = 4.2;
+  STOFFE.slice().sort((a, b) => b.c - a.c).forEach(s => {
+    const r = h('div', 'barrow', `<span class="nm">${s.icon} ${s.name}</span><div class="tr"><i data-w="${s.c / max * 100}" style="background:${s.color === '#cfe8ff' || s.color === '#dfe3e8' ? '#8fb5d6' : s.color}"></i></div><span class="vl">${f(s.c, 2)}</span>`);
+    r.onclick = () => {
+      $$('.barrow', box).forEach(x => x.classList.remove('sel')); r.classList.add('sel');
+      const rel = S.wasser.c / s.c;
+      $('#barInfo').innerHTML = `<b>${s.icon} ${s.name}:</b> c = ${f(s.c, 2)} kJ/(kg·°C). Für 1 kg ${s.name} um 1 °C braucht man <b>${f(s.c, 2)} kJ</b>.` +
+        (s.id === 'wasser' ? ' Wasser hat von den hier gezeigten Stoffen das größte c.' : ` Wasser braucht dafür <b>${f(rel, 1)}-mal</b> so viel Energie.`);
+    };
+    box.appendChild(r);
+  });
+})();
+function animateBars() { $$('#bars .tr i').forEach((b, i) => { b.style.width = '0'; setTimeout(() => b.style.width = b.dataset.w + '%', 60 + i * 70); }); }
+setTimeout(animateBars, 600);
+try { new IntersectionObserver((e, o) => { if (e[0].isIntersecting) { animateBars(); o.disconnect(); } }, {threshold: .3}).observe($('#bars')); } catch (e) {}
+
+/* ================= 5 Spielwiese ================= */
+const PG = {ref: null};
+$('#pgStoff').innerHTML = STOFFE.filter(s => s.id !== 'luft').map(s => `<option value="${s.id}">${s.icon} ${s.name} (c = ${f(s.c, 2)})</option>`).join('');
+function pgBuild() {
+  $('#pgSvg').innerHTML = `<rect x="70" y="260" width="200" height="14" rx="4" fill="#3b4252"/>
+    <g id="pgJar"></g><g id="pgSparks"></g><g id="pgFl" opacity="0.9">${FLAME(110, 316, 1.1)}${FLAME(170, 316, 1.3)}${FLAME(230, 316, 1.1)}</g>
+    ${thermo('pt', 380, 240, 190, 20, 120)}<text id="pgTv2" x="380" y="288" text-anchor="middle" class="svg-val">20 °C</text>
+    <text id="pgName" x="170" y="28" text-anchor="middle" class="svg-title"></text>`;
+}
+pgBuild();
+function pgUpdate() {
+  const s = S[$('#pgStoff').value], m = +$('#pgM').value, dT = +$('#pgT').value, Q = s.c * m * dT;
+  $('#pgMv').textContent = f(m) + ' kg'; $('#pgTv').textContent = dT + ' °C';
+  const hgt = 36 + m * 30, y = 258 - hgt;
+  $('#pgJar').innerHTML = s.liquid
+    ? `<rect x="90" y="${y}" width="160" height="${hgt}" rx="10" fill="${s.color}" opacity=".85"/><path d="M88 60 V248 Q88 260 100 260 H240 Q252 260 252 248 V60" fill="rgba(255,255,255,.2)" stroke="#6b7a99" stroke-width="3"/>`
+    : `<rect x="90" y="${y}" width="160" height="${hgt}" rx="8" fill="${s.color}" stroke="#4a5468" stroke-width="3"/><polygon points="94,${y + 4} 130,${y + 4} 94,${y + 40}" fill="#fff" opacity=".3"/>`;
+  $('#pgJar').innerHTML += `<text x="170" y="${y + hgt / 2 + 6}" text-anchor="middle" font-size="18" font-weight="800" fill="#1d2a44" opacity=".8">${f(m)} kg</text>`;
+  $('#pgName').textContent = s.icon + ' ' + s.name;
+  const n = Math.max(1, Math.min(26, Math.round(Math.sqrt(Q) * 1.2))); let sp = '';
+  for (let i = 0; i < n; i++) sp += `<text class="spark" x="${100 + (i * 37) % 140}" y="250" font-size="16" style="animation-delay:${(i * 0.37) % 1.6}s">⚡</text>`;
+  $('#pgSparks').innerHTML = sp;
+  setThermo('pt', 20 + dT); $('#pgTv2').textContent = (20 + dT) + ' °C';
+  $('#pgBar').style.width = Math.min(100, Q / 2100 * 100) + '%';
+  $('#pgOut').innerHTML = `<span class="formula">ΔQ = c · m · Δϑ</span><br><span class="formula">ΔQ = ${f(s.c, 2)} · ${f(m)} · ${dT} = <b>${f(Q, 2)} kJ</b></span>`;
+  if (PG.ref) {
+    const r = PG.ref;
+    $('#pgCmp').innerHTML = `<small>Gegenüber dem gemerkten Wert:</small><br><span class="pill">c × ${f(s.c / r.c, 2)}</span><span class="pill">m × ${f(m / r.m, 2)}</span><span class="pill">Δϑ × ${f(dT / r.dT, 2)}</span> → <span class="pill up">ΔQ × ${f(Q / r.Q, 2)}</span>`;
+  } else $('#pgCmp').innerHTML = '';
+  PG.cur = {c: s.c, m, dT, Q};
+}
+['pgStoff', 'pgM', 'pgT'].forEach(id => $('#' + id).addEventListener('input', pgUpdate));
+$('#pgRef').onclick = () => { PG.ref = Object.assign({}, PG.cur); pgUpdate(); };
+$('#pgRefClr').onclick = () => { PG.ref = null; pgUpdate(); };
+$('#pgStoff').value = 'wasser'; pgUpdate();
+
+/* ================= 6 Symbole ================= */
+const SYM = {
+  Q: ['ΔQ – Wärmeenergie', 'Die Energie, die ein Körper beim Erwärmen <b>aufnimmt</b> (oder beim Abkühlen <b>abgibt</b>). Einheit: <b>kJ</b> (Kilojoule).'],
+  c: ['c – spezifische Wärmekapazität', 'Eine <b>Stoffeigenschaft</b>: Energie, die 1 kg des Stoffes für 1 °C Erwärmung braucht. Einheit: <b>kJ/(kg·°C)</b>. Die Werte stehen in der Tabelle.'],
+  m: ['m – Masse', 'Die Masse des Körpers in <b>kg</b>. Achtung: 1000 g = 1 kg.'],
+  T: ['Δϑ – Temperaturänderung', '<b>Δϑ = ϑ<sub>Ende</sub> − ϑ<sub>Start</sub></b>. Einheit: <b>°C</b>. Beim Abkühlen rechnest du mit dem Betrag (immer ohne Minus).']
+};
+$$('#bigF .sym').forEach(b => b.onclick = () => {
+  $$('#bigF .sym').forEach(x => x.classList.remove('on')); b.classList.add('on');
+  const [t, x] = SYM[b.dataset.k]; $('#symInfo').style.animation = 'none'; void $('#symInfo').offsetWidth; $('#symInfo').style.animation = 'fadeUp .4s';
+  $('#symInfo').innerHTML = `<b>${t}</b><br>${x}`;
+});
+
+/* ================= 7 Umsteller ================= */
+const F = x => `<span class="formula">${x}</span>`;
+const REARR = {
+  Q: [['ΔQ = c · m · Δϑ', 0], ['Die Formel steht schon nach <b>ΔQ</b> aufgelöst da. Einfach einsetzen!', 1]],
+  m: [['ΔQ = c · <b>m</b> · Δϑ', 0], ['Teile beide Seiten durch (c · Δϑ):', 1], [frac('ΔQ', 'c · Δϑ') + ' = <b>m</b>', 0], ['m = ' + frac('ΔQ', 'c · Δϑ'), 0]],
+  T: [['ΔQ = c · m · <b>Δϑ</b>', 0], ['Teile beide Seiten durch (c · m):', 1], [frac('ΔQ', 'c · m') + ' = <b>Δϑ</b>', 0], ['Δϑ = ' + frac('ΔQ', 'c · m'), 0]],
+  c: [['ΔQ = <b>c</b> · m · Δϑ', 0], ['Teile beide Seiten durch (m · Δϑ):', 1], [frac('ΔQ', 'm · Δϑ') + ' = <b>c</b>', 0], ['c = ' + frac('ΔQ', 'm · Δϑ'), 0]]
+};
+$$('#rearrChips .chip').forEach(b => b.onclick = () => {
+  $$('#rearrChips .chip').forEach(x => x.classList.remove('on')); b.classList.add('on');
+  $('#rearr').innerHTML = REARR[b.dataset.k].map((l, i) => `<div class="ln ${l[1] ? 'cm' : ''}" style="--i:${i}">${l[1] ? l[0] : F(l[0])}</div>`).join('');
+});
+
+/* ================= 8 Schritt-für-Schritt ================= */
+const EX = prep({stoff: 'wasser', m: 3, t1: 20, dT: 40, find: 'Q'});
+const exSteps = stepsFor(EX); let exN = 0;
+function exRender() {
+  $('#stepper').innerHTML = exN ? exSteps.slice(0, exN).map((s, i) => stepsHTML([s]).replace('style="--i:0"', i < exN - 1 ? 'style="--i:0;animation:none;opacity:1"' : 'style="--i:0"')).join('') : '<small>Klicke auf „Nächster Schritt“.</small>';
+  $('#stepNext').disabled = exN >= exSteps.length;
+}
+$('#stepNext').onclick = () => { exN++; exRender(); };
+$('#stepReset').onclick = () => { exN = 0; exRender(); };
+exRender();
+
+updateProgress();
+</script>
+</body>
+</html>
